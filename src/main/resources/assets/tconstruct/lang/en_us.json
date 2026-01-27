@@ -1,0 +1,13 @@
+{
+  "itemGroup.tconstruct": "Example Mod Tab",
+  "block.tconstruct.example_block": "Example Block",
+  "item.tconstruct.example_item": "Example Item",
+
+  "tconstruct.configuration.title": "Tinker's Construct-Nirvana Configs",
+  "tconstruct.configuration.section.tconstruct.common.toml": "Tinker's Construct-Nirvana Configs",
+  "tconstruct.configuration.section.tconstruct.common.toml.title": "Tinker's Construct-Nirvana Configs",
+  "tconstruct.configuration.items": "Item List",
+  "tconstruct.configuration.logDirtBlock": "Log Dirt Block",
+  "tconstruct.configuration.magicNumberIntroduction": "Magic Number Text",
+  "tconstruct.configuration.magicNumber": "Magic Number"
+}
