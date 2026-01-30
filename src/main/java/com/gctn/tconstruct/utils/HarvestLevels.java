@@ -3,7 +3,6 @@ package com.gctn.tconstruct.utils;
 import com.gctn.tconstruct.library.Util;
 import com.gctn.tconstruct.library.tools.TinkerMaterials;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import com.google.common.collect.Maps;
 

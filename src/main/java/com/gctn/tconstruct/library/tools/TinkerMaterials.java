@@ -237,7 +237,7 @@ public final class TinkerMaterials {
                 new HandleMaterialStats(1.25f, 150),
                 new ExtraMaterialStats(100));
 
-        //TinkerRegistry.addMaterialStats(xu,         new ToolMaterialStats(97, 1.00f, 1.00f, 0.10f, 0.20f, DIAMOND));
+        // TinkerRegistry.addMaterialStats(xu,         new ToolMaterialStats(97, 1.00f, 1.00f, 0.10f, 0.20f, DIAMOND));
     }
 
     public void registerBowMaterialStats() {

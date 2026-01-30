@@ -40,32 +40,32 @@ public final class TinkerRegistry {
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, TinkersConstructNirvana.MODID);
 
     public static final Supplier<CreativeModeTab> GENERAL_TAB =
-            CREATIVE_MODE_TABS.register("TinkerGeneral", () -> CreativeModeTab.builder()
+            CREATIVE_MODE_TABS.register("tinker_general", () -> CreativeModeTab.builder()
                     .icon(() -> new ItemStack(Items.SLIME_BALL))
                     .title(Component.translatable("tinker_general_tab"))
                     .build());
     public static final Supplier<CreativeModeTab> TOOLS_TAB =
-            CREATIVE_MODE_TABS.register("TinkerTools", () -> CreativeModeTab.builder()
+            CREATIVE_MODE_TABS.register("tinker_tools", () -> CreativeModeTab.builder()
                     .icon(() -> new ItemStack(Items.IRON_PICKAXE))
                     .title(Component.translatable("tinker_tools_tab"))
                     .build());
     public static final Supplier<CreativeModeTab> PARTS_TAB =
-            CREATIVE_MODE_TABS.register("TinkerToolParts", () -> CreativeModeTab.builder()
+            CREATIVE_MODE_TABS.register("tinker_tool_parts", () -> CreativeModeTab.builder()
                     .icon(() -> new ItemStack(Items.STICK))
-                    .title(Component.translatable("tinker_toolparts_tab"))
+                    .title(Component.translatable("tinker_tool_parts_tab"))
                     .build());
     public static final Supplier<CreativeModeTab> SMELTERY_TAB =
-            CREATIVE_MODE_TABS.register("TinkerSmeltery", () -> CreativeModeTab.builder()
+            CREATIVE_MODE_TABS.register("tinker_smeltery", () -> CreativeModeTab.builder()
                     .icon(() -> new ItemStack(Blocks.STONE_BRICKS))
                     .title(Component.translatable("tinker_smeltery_tab"))
                     .build());
     public static final Supplier<CreativeModeTab> WORLD_TAB =
-            CREATIVE_MODE_TABS.register("TinkerWorld", () -> CreativeModeTab.builder()
+            CREATIVE_MODE_TABS.register("tinker_world", () -> CreativeModeTab.builder()
                     .icon(() -> new ItemStack(Blocks.SLIME_BLOCK))
                     .title(Component.translatable("tinker_world_tab"))
                     .build());
     public static final Supplier<CreativeModeTab> GADGETS_TAB =
-            CREATIVE_MODE_TABS.register("TinkerGadgets", () -> CreativeModeTab.builder()
+            CREATIVE_MODE_TABS.register("tinker_gadgets", () -> CreativeModeTab.builder()
                     .icon(() -> new ItemStack(Blocks.TNT))
                     .title(Component.translatable("tinker_gadgets_tab"))
                     .build());
