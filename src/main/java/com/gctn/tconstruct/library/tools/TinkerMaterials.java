@@ -81,7 +81,7 @@ public final class TinkerMaterials {
     public static final Material slimeleaf_orange = mat("slimeleaf_orange", 0xff960d);
     public static final Material slimeleaf_purple = mat("slimeleaf_purple", 0xc873c8);
 
-    private static Material mat(String name, int color) {
+    public static Material mat(String name, int color) {
         // make materials hidden by default, integration will make them visible if integrated
         Material mat = new Material(name, color, true);
         materials.add(mat);
@@ -95,13 +95,12 @@ public final class TinkerMaterials {
     // TODO 处理药水效果
 
     public void registerToolMaterialStats() {
-        // Stats:                                                   Durability, speed, attack, handle, extra, harvestlevel
+        // Stats:Durability, speed, attack, handle, extra, harvestlevel
         // natural resources/blocks
         TinkerRegistry.addMaterialStats(wood,
                 new HeadMaterialStats(35, 2.00f, 2.00f, STONE),
                 new HandleMaterialStats(1.00f, 25),
                 new ExtraMaterialStats(15));
-
         TinkerRegistry.addMaterialStats(stone,
                 new HeadMaterialStats(120, 4.00f, 3.00f, IRON),
                 new HandleMaterialStats(0.50f, -50),

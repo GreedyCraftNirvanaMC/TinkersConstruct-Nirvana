@@ -1,6 +1,7 @@
 package com.gctn.tconstruct.library;
 
 import com.gctn.tconstruct.TinkersConstructNirvana;
+import com.gctn.tconstruct.debug.DynamicColoredParts;
 import com.gctn.tconstruct.library.materials.IMaterialStats;
 import com.gctn.tconstruct.library.materials.Material;
 import com.gctn.tconstruct.library.traits.ITrait;
@@ -53,6 +54,13 @@ public final class TinkerRegistry {
             CREATIVE_MODE_TABS.register("tinker_tool_parts", () -> CreativeModeTab.builder()
                     .icon(() -> new ItemStack(Items.STICK))
                     .title(Component.translatable("tinker_tool_parts_tab"))
+                    .displayItems(((itemDisplayParameters, output) -> {
+                        Collection<ItemStack> tempStacks = DynamicColoredParts.createColoredParts();
+                        int i=0;
+                        for (ItemStack itemStack : tempStacks) {
+                            output.accept(itemStack);
+                        }
+                    }))
                     .build());
     public static final Supplier<CreativeModeTab> SMELTERY_TAB =
             CREATIVE_MODE_TABS.register("tinker_smeltery", () -> CreativeModeTab.builder()
@@ -117,7 +125,9 @@ public final class TinkerRegistry {
             log.error("Could not register material \"{}\": Material identifier must be completely lowercase.", material.identifier);
             return;
         }
-
+        */
+        materials.put(material.identifier, material);
+        /*
         // duplicate material
         if(materials.containsKey(material.identifier)) {
             ModContainer currentMod = Loader.instance().activeModContainer();

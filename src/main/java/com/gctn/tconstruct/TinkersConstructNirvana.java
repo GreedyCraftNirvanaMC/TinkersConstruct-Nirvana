@@ -1,6 +1,8 @@
 package com.gctn.tconstruct;
 
+import com.gctn.tconstruct.debug.DynamicColoredParts;
 import com.gctn.tconstruct.library.TinkerRegistry;
+import com.gctn.tconstruct.library.tools.TinkerMaterials;
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 
@@ -23,5 +25,7 @@ public class TinkersConstructNirvana {
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
         // NeoForge.EVENT_BUS.register(this);
         TinkerRegistry.register(modEventBus);
+        DynamicColoredParts.register(modEventBus);
+        new TinkerMaterials();
     }
 }

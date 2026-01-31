@@ -4,5 +4,6 @@
   "tinker_tool_parts_tab": "TinkerToolParts",
   "tinker_smeltery_tab": "TinkerSmeltery",
   "tinker_world_tab": "TinkerWorld",
-  "tinker_gadgets_tab": "TinkerGadgets"
+  "tinker_gadgets_tab": "TinkerGadgets",
+  "item.tconstruct.tool_rod": "Tool Rod"
 }

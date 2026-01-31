@@ -3,10 +3,13 @@ package com.gctn.tconstruct.library.materials;
 import com.gctn.tconstruct.library.TinkerRegistry;
 import com.gctn.tconstruct.library.Util;
 import com.gctn.tconstruct.library.client.CustomFontColor;
+import com.gctn.tconstruct.library.client.MaterialRenderInfo;
 import com.gctn.tconstruct.library.traits.ITrait;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.ChatFormatting;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 // import net.minecraft.world.level.material.Fluid;
 
 import java.util.*;
@@ -53,6 +56,12 @@ public class Material {
      */
     private boolean hidden;
 
+    /**
+     * Client-Information
+     * How the material will be rendered on tinker tools etc.
+     */
+    @OnlyIn(Dist.CLIENT)
+    public MaterialRenderInfo renderInfo;// = new MaterialRenderInfo.Default(0xffffff);
     public int materialTextColor = 0xffffff; // used in tooltips and other text. Saved in NBT.
 
     // we use a specific map for 2 reasons:
@@ -195,6 +204,16 @@ public class Material {
             builder.addAll(traitlist);
         }
         return builder.build();
+    }
+
+    /**
+     * The display information for the Material. You should totally set this if you want your material to be visible.
+     *
+     * @param renderInfo How the textures for the material are generated
+     */
+    @OnlyIn(Dist.CLIENT)
+    public void setRenderInfo(MaterialRenderInfo renderInfo) {
+        this.renderInfo = renderInfo;
     }
 
     public String getIdentifier() {
