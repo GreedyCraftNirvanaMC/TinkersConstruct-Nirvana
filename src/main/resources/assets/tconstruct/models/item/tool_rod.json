@@ -1,19 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "tconstruct:item/tool_rod"
-  },
-  "elements": [
-    {
-      "name": "main",
-      "from": [0, 0, 0],
-      "to": [16, 16, 16],
-      "faces": {
-        "down": {
-          "texture": "#layer0",
-          "color": 0
-        }
-      }
-    }
-  ]
+    "layer0": "tconstruct:item/parts/tool_rod"
+  }
 }

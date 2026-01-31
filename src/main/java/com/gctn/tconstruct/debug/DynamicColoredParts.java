@@ -7,6 +7,7 @@ import com.gctn.tconstruct.utils.Tags;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
@@ -51,6 +52,11 @@ public class DynamicColoredParts {
             CompoundTag tag = new CompoundTag();
             tag.putString(Tags.PART_MATERIAL, material.identifier);
             stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+            stack.set(DataComponents.ITEM_NAME, Component.literal(
+                    Component.translatable("material."+material.identifier+".name").getString()
+                    +" "
+                    +Component.translatable("item.tconstruct.tool_rod.name").getString()
+            ));
             coloredParts.add(stack);
         }
         return coloredParts;
