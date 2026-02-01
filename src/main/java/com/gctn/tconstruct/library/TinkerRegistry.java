@@ -1,9 +1,12 @@
 package com.gctn.tconstruct.library;
 
+import com.gctn.tconstruct.Config;
 import com.gctn.tconstruct.TinkersConstructNirvana;
 import com.gctn.tconstruct.debug.DynamicColoredParts;
 import com.gctn.tconstruct.library.materials.IMaterialStats;
 import com.gctn.tconstruct.library.materials.Material;
+import com.gctn.tconstruct.library.materials.MaterialTypes;
+import com.gctn.tconstruct.library.materials.ProjectileMaterialStats;
 import com.gctn.tconstruct.library.traits.ITrait;
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableList;
@@ -18,15 +21,20 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public final class TinkerRegistry {
     // the logger for the library
@@ -115,23 +123,21 @@ public final class TinkerRegistry {
      */
     public static void addMaterial(Material material) {
         // TODO 处理材料注册
-        /*
         // ensure material identifiers are safe
         if(CharMatcher.whitespace().matchesAnyOf(material.getIdentifier())) {
             log.error("Could not register material \"{}\": Material identifier must not contain any spaces.", material.identifier);
             return;
         }
-        if(CharMatcher.javaUpperCase().matchesAnyOf(material.getIdentifier())) {
+        if(CharMatcher.inRange('A','Z').matchesAnyOf(material.getIdentifier())) {
             log.error("Could not register material \"{}\": Material identifier must be completely lowercase.", material.identifier);
             return;
         }
-        */
-        materials.put(material.identifier, material);
-        /*
+
         // duplicate material
         if(materials.containsKey(material.identifier)) {
-            ModContainer currentMod = Loader.instance().activeModContainer();
+            ModContainer currentMod = ModLoadingContext.get().getActiveContainer();
             String currentModId = currentMod != null ? currentMod.getModId() : "unknown";
+
             ModContainer registeredMod = getTrace(material);
             String registeredModId = registeredMod != null ? registeredMod.getModId() : "unknown";
             // compare priorities based on config
@@ -139,19 +145,21 @@ public final class TinkerRegistry {
             int registeredPriority = getModPriority(registeredModId);
             if(currentPriority < registeredPriority) {
                 // current mod has higher priority (lower index), replace existing material
-                log.warn("Replacing material \"{}\" with material from {} ({})",
-                        material.identifier, currentMod.getName(), currentModId);
+                log.warn("Replacing material \"{}\" with material from {}",
+                        material.identifier, currentModId);
                 // remove existing material
                 materials.remove(material.identifier);
                 materialRegisteredByMod.remove(material.identifier);
             } else {
                 // existing mod has higher priority, reject new material
-                log.error("Could not register material \"{}\" from {} ({}): It was already registered by {} ({})",
-                        material.identifier, currentMod.getName(), currentModId, registeredMod.getName(), registeredModId);
+                log.error("Could not register material \"{}\" from {}: It was already registered by {}",
+                        material.identifier, currentModId, registeredModId);
                 return;
             }
         }
 
+        // TODO 注释
+        /*
         MaterialEvent.MaterialRegisterEvent event = new MaterialEvent.MaterialRegisterEvent(material);
 
         if(NeoForge.EVENT_BUS.post(event).booleanValue()) {
@@ -168,11 +176,13 @@ public final class TinkerRegistry {
             return;
         }
 
+         */
+
         // register material
         materials.put(material.identifier, material);
         putMaterialTrace(material.identifier);
 
-         */
+
     }
 
     public static Material getMaterial(String identifier) {
@@ -207,19 +217,14 @@ public final class TinkerRegistry {
     ---------------------------------------------------------------------------*/
 
     public static void addTrait(ITrait trait) {
-        // TODO 处理材料特性注册
-        /*
         // Trait might already have been registered since modifiers and materials share traits
         if(traits.containsKey(trait.getIdentifier())) {
             return;
         }
 
         traits.put(trait.getIdentifier(), trait);
-
-        ModContainer activeMod = Loader.instance().activeModContainer();
+        ModContainer activeMod = ModLoadingContext.get().getActiveContainer();
         putTraitTrace(trait.getIdentifier(), trait, activeMod);
-
-         */
     }
 
     public static void addMaterialStats(String materialIdentifier, IMaterialStats stats) {
@@ -244,7 +249,6 @@ public final class TinkerRegistry {
 
     public static void addMaterialStats(Material material, IMaterialStats stats) {
         // TODO 处理材料数据注册
-        /*
         if(material == null) {
             log.error("Could not add Stats \"{}\": Material is null", stats.getIdentifier());
             return;
@@ -259,20 +263,22 @@ public final class TinkerRegistry {
             String registeredBy = "Unknown";
             Map<String, ModContainer> matReg = statRegisteredByMod.get(identifier);
             if(matReg != null) {
-                registeredBy = matReg.get(stats.getIdentifier()).getName();
+                registeredBy = matReg.get(stats.getIdentifier()).getModId();
             }
 
-            log.fatal("Could not add Stats to \"{}\": Stats of type \"{}\" were already registered by {}. Use the events to modify stats.", identifier, stats.getIdentifier(), registeredBy);
+            log.error("Could not add Stats to \"{}\": Stats of type \"{}\" were already registered by {}. Use the events to modify stats.", identifier, stats.getIdentifier(), registeredBy);
             return;
         }
 
         // ensure there are default stats present
         if(Material.UNKNOWN.getStats(stats.getIdentifier()) == null) {
-            log.fatal("Could not add Stat of type \"{}\": Default Material does not have default stats for said type. Please add default-values to the default material \"unknown\" first.", stats
+            log.error("Could not add Stat of type \"{}\": Default Material does not have default stats for said type. Please add default-values to the default material \"unknown\" first.", stats
                     .getIdentifier());
             return;
         }
 
+        // TODO 注释
+        /*
         MaterialEvent.StatRegisterEvent<?> event = new MaterialEvent.StatRegisterEvent<>(material, stats);
         MinecraftForge.EVENT_BUS.post(event);
 
@@ -281,16 +287,16 @@ public final class TinkerRegistry {
             stats = event.newStats;
         }
 
+         */
+
         material.addStats(stats);
 
-        ModContainer activeMod = Loader.instance().activeModContainer();
+        ModContainer activeMod = ModLoadingContext.get().getActiveContainer();
         putStatTrace(identifier, stats, activeMod);
 
         if(Objects.equals(stats.getIdentifier(), MaterialTypes.HEAD) && !material.hasStats(MaterialTypes.PROJECTILE)) {
             addMaterialStats(material, new ProjectileMaterialStats());
         }
-
-         */
     }
 
     public static void addMaterialTrait(String materialIdentifier, ITrait trait, String stats) {
@@ -358,6 +364,925 @@ public final class TinkerRegistry {
     public static ITrait getTrait(String identifier) {
         return traits.get(identifier);
     }
+
+
+
+    /*---------------------------------------------------------------------------
+  | TOOLS & WEAPONS & Crafting                                                |
+  ---------------------------------------------------------------------------*/
+
+    /** This set contains all known tools */
+    /*
+    private static final Set<ToolCore> tools = new ObjectLinkedOpenHashSet<>();
+    private static final Set<IToolPart> toolParts = new ObjectLinkedOpenHashSet<>();
+    private static final Set<ToolCore> toolStationCrafting = new ObjectLinkedOpenHashSet<>();
+    private static final Set<ToolCore> toolForgeCrafting = new ObjectLinkedOpenHashSet<>();
+    private static final List<ItemStack> stencilTableCrafting = new ObjectArrayList<>();
+    private static final Set<Item> patternItems = new ObjectOpenHashSet<>();
+    private static final Set<Item> castItems = new ObjectOpenHashSet<>();
+    private static Shard shardItem;
+
+     */
+
+    /**
+     * Register a tool, making it known to tinkers' systems.
+     * All toolparts used to craft the tool will be registered as well.
+     */
+    /*
+    public static void registerTool(ToolCore tool) {
+        tools.add(tool);
+
+        for(PartMaterialType pmt : tool.getRequiredComponents()) {
+            for(IToolPart tp : pmt.getPossibleParts()) {
+                registerToolPart(tp);
+            }
+        }
+    }
+
+    public static Set<ToolCore> getTools() {
+        return ImmutableSet.copyOf(tools);
+    }
+
+     */
+
+    /**
+     * Used for the sharpening kit. Allows to register a toolpart that is not part of a tool.
+     */
+    /*
+    public static void registerToolPart(IToolPart part) {
+        toolParts.add(part);
+        if(part instanceof Item) {
+            if(part.canBeCrafted()) {
+                addPatternForItem((Item) part);
+            }
+            if(part.canBeCasted()) {
+                addCastForItem((Item) part);
+            }
+        }
+    }
+
+    public static Set<IToolPart> getToolParts() {
+        return ImmutableSet.copyOf(toolParts);
+    }
+
+     */
+
+    /** Adds a tool to the Crafting UI of both the Tool Station as well as the Tool Forge */
+    /*
+    public static void registerToolCrafting(ToolCore tool) {
+        registerToolStationCrafting(tool);
+        registerToolForgeCrafting(tool);
+    }
+
+     */
+
+    /** Adds a tool to the Crafting UI of the Tool Station */
+    /*
+    public static void registerToolStationCrafting(ToolCore tool) {
+        if(new TinkerRegisterEvent.ToolStationCraftingRegisterEvent(tool).fire()) {
+            toolStationCrafting.add(tool);
+        } else {
+            log.debug("Registration of tool station recipe " + tool.getRegistryName().toString() + " has been cancelled by event");
+        }
+    }
+
+    public static Set<ToolCore> getToolStationCrafting() {
+        return ImmutableSet.copyOf(toolStationCrafting);
+    }
+
+     */
+
+    /** Adds a tool to the Crafting UI of the Tool Forge */
+    /*
+    public static void registerToolForgeCrafting(ToolCore tool) {
+        if(new TinkerRegisterEvent.ToolForgeCraftingRegisterEvent(tool).fire()) {
+            toolForgeCrafting.add(tool);
+        } else {
+            log.debug("Registration of tool forge recipe " + tool.getRegistryName().toString() + " has been cancelled by event");
+        }
+    }
+
+    public static Set<ToolCore> getToolForgeCrafting() {
+        return ImmutableSet.copyOf(toolForgeCrafting);
+    }
+
+     */
+
+    /** Adds a new pattern to craft to the stenciltable. NBT sensitive. Has to be a Pattern. */
+    /*
+    public static void registerStencilTableCrafting(ItemStack stencil) {
+        if(!(stencil.getItem() instanceof IPattern)) {
+            log.fatal("Stencil Table Crafting has to be a pattern ({})", stencil);
+            return;
+        }
+        if(new TinkerRegisterEvent.StencilTableCraftingRegisterEvent(stencil).fire()) {
+            stencilTableCrafting.add(stencil);
+        } else {
+            log.debug("Registration of stencil table stencil " + stencil + " has been cancelled by event");
+        }
+    }
+
+    public static List<ItemStack> getStencilTableCrafting() {
+        return ImmutableList.copyOf(stencilTableCrafting);
+    }
+
+    public static void setShardItem(Shard shard) {
+        if(shard == null) {
+            return;
+        }
+        shardItem = shard;
+    }
+
+    public static Shard getShard() {
+        return shardItem;
+    }
+
+    public static ItemStack getShard(Material material) {
+        ItemStack out = material.getShard();
+        if(out.isEmpty()) {
+            out = shardItem.getItemstackWithMaterial(material);
+        }
+        return out;
+    }
+
+     */
+
+    /** Registers a pattern for the given item */
+    /*
+    public static void addPatternForItem(Item item) {
+        patternItems.add(item);
+    }
+
+     */
+
+    /** Registers a cast for the given item */
+    /*
+    public static void addCastForItem(Item item) {
+        castItems.add(item);
+    }
+
+     */
+
+    /** All items that have a pattern */
+    /*
+    public static Collection<Item> getPatternItems() {
+        return ImmutableList.copyOf(patternItems);
+    }
+
+     */
+
+    /** All items that have a cast */
+    /*
+    public static Collection<Item> getCastItems() {
+        return ImmutableList.copyOf(castItems);
+    }
+
+     */
+
+    /*---------------------------------------------------------------------------
+    | Modifiers                                                                 |
+    ---------------------------------------------------------------------------*/
+    /*
+    private static final Map<String, IModifier> modifiers = new Object2ObjectOpenHashMap<>();
+    private static final Multimap<Class<? extends EntityLivingBase>, Function<EntityLivingBase,ItemStack>> headDrops = ArrayListMultimap.create();
+    private static final Multimap<Class<? extends EntityLivingBase>, ItemStack> headDropsRaw = ArrayListMultimap.create();
+
+    public static void registerModifier(IModifier modifier) {
+        registerModifierAlias(modifier, modifier.getIdentifier());
+    }
+
+     */
+
+    /** Registers an alternate name for a modifier. This is used for multi-level modifiers/traits where multiple exist, but one specific is needed for access */
+    /*
+    public static void registerModifierAlias(IModifier modifier, String alias) {
+        if(modifiers.containsKey(alias)) {
+            log.fatal("Trying to register a modifier with the name " + alias + " but it already is registered");
+            return;
+        }
+        if(new TinkerRegisterEvent.ModifierRegisterEvent(modifier).fire()) {
+            modifiers.put(alias, modifier);
+        }
+        else {
+            log.debug("Registration of modifier " + alias + " has been cancelled by event");
+        }
+    }
+
+    public static IModifier getModifier(String identifier) {
+        return modifiers.get(identifier);
+    }
+
+    public static Collection<IModifier> getAllModifiers() {
+        return ImmutableList.copyOf(modifiers.values());
+    }
+
+     */
+
+    /**
+     * Registers a beheading head drop for all entities that extend the given class
+     * @param clazz  Entity class
+     * @param head   Head that drops from that entity
+     */
+    /*
+    public static void registerHeadDropForAll(Class<? extends EntityLivingBase> clazz, ItemStack head) {
+        for(EntityEntry entry : ForgeRegistries.ENTITIES) {
+            Class<? extends Entity> entityClass = entry.getEntityClass();
+            if(clazz.isAssignableFrom(entityClass)) {
+                registerHeadDrop((Class<? extends EntityLivingBase>) entityClass, head);
+            }
+        }
+    }
+
+     */
+
+    /**
+     * Registers a beheading head drop for an entity
+     * @param clazz     Entity class
+     * @param callback  Callback function, takes entity as a parameter and returns an item stack
+     */
+    /*
+    public static void registerHeadDrop(Class<? extends EntityLivingBase> clazz, Function<EntityLivingBase,ItemStack> callback) {
+        headDrops.put(clazz, callback);
+        log.info("Registered head drop for {}", clazz.getSimpleName());
+    }
+
+     */
+
+    /**
+     * Registers a beheading head drop for an entity
+     * @param clazz  Entity class
+     * @param head   Head that drops from that entity
+     */
+    /*
+    public static void registerHeadDrop(Class<? extends EntityLivingBase> clazz, ItemStack head) {
+        final ItemStack safeStack = head.copy();
+        registerHeadDrop(clazz, e -> safeStack);
+        headDropsRaw.put(clazz, head);
+    }
+
+     */
+
+    /**
+     * Gets the heads that would be dropped by an entity
+     * @param entity  Entity to check
+     * @return  A collection of the entity's head drops
+     */
+    /*
+    public static Collection<ItemStack> getHeadDrop(EntityLivingBase entity) {
+        Collection<ItemStack> drops = new ArrayList<>();
+        for(Map.Entry<Class<? extends EntityLivingBase>, Function<EntityLivingBase, ItemStack>> entry : headDrops.entries()) {
+            if(entry.getKey().isAssignableFrom(entity.getClass())) {
+                ItemStack stack = entry.getValue().apply(entity);
+                if (!stack.isEmpty()) {
+                    drops.add(stack.copy());
+                }
+            }
+        }
+        return drops;
+    }
+
+    public static Map<Class<? extends EntityLivingBase>, Collection<ItemStack>> getAllSeveringRecipes() {
+        return headDropsRaw.asMap();
+    }
+
+     */
+
+    /*---------------------------------------------------------------------------
+    | Smeltery                                                                  |
+    ---------------------------------------------------------------------------*/
+    /*
+    private static List<MeltingRecipe> meltingRegistry = new ObjectArrayList<>();
+    private static List<ICastingRecipe> tableCastRegistry = new ObjectArrayList<>();
+    private static List<ICastingRecipe> basinCastRegistry = new ObjectArrayList<>();
+    private static List<AlloyRecipe> alloyRegistry = new ObjectArrayList<>();
+    private static Map<FluidStack, Integer> smelteryFuels = new Object2IntOpenHashMap<>();
+    private static Map<ResourceLocation, FluidStack> entityMeltingRegistry = new Object2ObjectOpenHashMap<>();
+
+     */
+
+    /** Registers this item with all its metadatas to melt into amount of the given fluid. */
+    /*
+    public static void registerMelting(Item item, Fluid fluid, int amount) {
+        ItemStack stack = new ItemStack(item, 1, OreDictionary.WILDCARD_VALUE);
+        registerMelting(new MeltingRecipe(new RecipeMatch.Item(stack, 1, amount), fluid));
+    }
+
+     */
+
+    /** Registers this block with all its metadatas to melt into amount of the given fluid. */
+    /*
+    public static void registerMelting(Block block, Fluid fluid, int amount) {
+        ItemStack stack = new ItemStack(block, 1, OreDictionary.WILDCARD_VALUE);
+        registerMelting(new MeltingRecipe(new RecipeMatch.Item(stack, 1, amount), fluid));
+    }
+
+     */
+
+    /** Registers this itemstack NBT-SENSITIVE to melt into amount of the given fluid. */
+    /*
+    public static void registerMelting(ItemStack stack, Fluid fluid, int amount) {
+        registerMelting(new MeltingRecipe(new RecipeMatch.ItemCombination(amount, stack), fluid));
+    }
+
+    public static void registerMelting(String oredict, Fluid fluid, int amount) {
+        registerMelting(new MeltingRecipe(new RecipeMatch.Oredict(oredict, 1, amount), fluid));
+    }
+
+    public static void registerMelting(MeltingRecipe recipe) {
+        if(Arrays.stream(Config.fluidIgnore).anyMatch(f -> f.equals(recipe.output.getFluid().getName()))) {
+            return;
+        }
+        if(new TinkerRegisterEvent.MeltingRegisterEvent(recipe).fire()) {
+            meltingRegistry.add(recipe);
+        }
+        else {
+            try {
+                String input = recipe.input.getInputs().stream().findFirst().map(ItemStack::getUnlocalizedName).orElse("?");
+                log.debug("Registration of melting recipe for " + recipe.getResult().getUnlocalizedName() + " from " + input + " has been cancelled by event");
+            } catch(Exception e) {
+                log.error("Error when logging melting event", e);
+            }
+        }
+    }
+
+    public static MeltingRecipe getMelting(ItemStack stack) {
+        for(MeltingRecipe recipe : meltingRegistry) {
+            if(recipe.matches(stack)) {
+                return recipe;
+            }
+        }
+
+        return null;
+    }
+
+    public static List<MeltingRecipe> getAllMeltingRecipies() {
+        return ImmutableList.copyOf(meltingRegistry);
+    }
+
+    public static void registerAlloy(FluidStack result, FluidStack... inputs) {
+        if(result.amount < 1) {
+            log.fatal("Alloy Recipe: Resulting alloy {} has to have an amount ({})", result.getLocalizedName(), result.amount);
+            return;
+        }
+        if(inputs.length < 2) {
+            log.fatal("Alloy Recipe: Alloy for {} must consist of at least 2 liquids", result.getLocalizedName());
+            return;
+        }
+
+        registerAlloy(new AlloyRecipe(result, inputs));
+    }
+
+    public static void registerAlloy(AlloyRecipe recipe) {
+        if(new TinkerRegisterEvent.AlloyRegisterEvent(recipe).fire()) {
+            alloyRegistry.add(recipe);
+        }
+        else {
+            try {
+                String input = recipe.getFluids().stream().map(FluidStack::getUnlocalizedName).collect(Collectors.joining(", "));
+                String output = recipe.getResult().getUnlocalizedName();
+                log.debug("Registration of alloy recipe for " + output + " from [" + input + "] has been cancelled by event");
+            } catch(Exception e) {
+                log.error("Error when logging alloy event", e);
+            }
+        }
+    }
+
+    public static List<AlloyRecipe> getAlloys() {
+        return ImmutableList.copyOf(alloyRegistry);
+    }
+
+     */
+
+    /** Registers a casting recipe for casting table */
+    /*
+    public static void registerTableCasting(ItemStack output, ItemStack cast, Fluid fluid, int amount) {
+        if(Arrays.stream(Config.fluidIgnore).anyMatch(f -> f.equals(fluid.getName()))) {
+            return;
+        }
+        RecipeMatch rm = null;
+        if(cast != ItemStack.EMPTY) {
+            rm = RecipeMatch.ofNBT(cast);
+        }
+        registerTableCasting(new CastingRecipe(output, rm, fluid, amount));
+    }
+
+    public static void registerTableCasting(ICastingRecipe recipe) {
+        if(new TinkerRegisterEvent.TableCastingRegisterEvent(recipe).fire()) {
+            tableCastRegistry.add(recipe);
+        }
+        else {
+            try {
+                String output = Optional.ofNullable(recipe.getResult(ItemStack.EMPTY, FluidRegistry.WATER)).map(ItemStack::getUnlocalizedName).orElse("Unknown");
+                log.debug("Registration of table casting recipe for " + output + " has been cancelled by event");
+            } catch(Exception e) {
+                log.error("Error when logging table casting event", e);
+            }
+        }
+    }
+
+    public static ICastingRecipe getTableCasting(ItemStack cast, Fluid fluid) {
+        for(ICastingRecipe recipe : tableCastRegistry) {
+            if(recipe.matches(cast, fluid)) {
+                return recipe;
+            }
+        }
+        return null;
+    }
+
+    public static List<ICastingRecipe> getAllTableCastingRecipes() {
+        return ImmutableList.copyOf(tableCastRegistry);
+    }
+
+     */
+
+    /** Registers a casting recipe for the casting basin */
+    /*
+    public static void registerBasinCasting(ItemStack output, ItemStack cast, Fluid fluid, int amount) {
+        if(Arrays.stream(Config.fluidIgnore).anyMatch(f -> f.equals(fluid.getName()))) {
+            return;
+        }
+        RecipeMatch rm = null;
+        if(!cast.isEmpty()) {
+            rm = RecipeMatch.ofNBT(cast);
+        }
+        registerBasinCasting(new CastingRecipe(output, rm, fluid, amount));
+    }
+
+    public static void registerBasinCasting(ICastingRecipe recipe) {
+        if(new TinkerRegisterEvent.BasinCastingRegisterEvent(recipe).fire()) {
+            basinCastRegistry.add(recipe);
+        }
+        else {
+            try {
+                String output = Optional.ofNullable(recipe.getResult(ItemStack.EMPTY, FluidRegistry.WATER)).map(ItemStack::getUnlocalizedName).orElse("Unknown");
+                log.debug("Registration of basin casting recipe for " + output + " has been cancelled by event");
+            } catch(Exception e) {
+                log.error("Error when logging basin casting event", e);
+            }
+        }
+    }
+
+    public static ICastingRecipe getBasinCasting(ItemStack cast, Fluid fluid) {
+        for(ICastingRecipe recipe : basinCastRegistry) {
+            if(recipe.matches(cast, fluid)) {
+                return recipe;
+            }
+        }
+        return null;
+    }
+
+    public static List<ICastingRecipe> getAllBasinCastingRecipes() {
+        return ImmutableList.copyOf(basinCastRegistry);
+    }
+
+     */
+
+    /**
+     * Registers a liquid to be used as smeltery fuel.
+     * Temperature is derived from fluid temperature.
+     *
+     * @param fluidStack   The fluid. Amount is the minimal increment that is consumed at once.
+     * @param fuelDuration How many ticks the consumtpion of the fluidStack lasts.
+     */
+    /*
+    public static void registerSmelteryFuel(FluidStack fluidStack, int fuelDuration) {
+        if(new TinkerRegisterEvent.SmelteryFuelRegisterEvent(fluidStack, fuelDuration).fire()) {
+            smelteryFuels.put(fluidStack, fuelDuration);
+        }
+        else {
+            try {
+                String input = fluidStack.getUnlocalizedName();
+                log.debug("Registration of smeltery fuel " + input + " has been cancelled by event");
+            } catch(Exception e) {
+                log.error("Error when logging smeltery fuel event", e);
+            }
+        }
+    }
+
+     */
+
+    /** Checks if the given fluidstack can be used as smeltery fuel */
+    /*
+    public static boolean isSmelteryFuel(FluidStack in) {
+        for(Map.Entry<FluidStack, Integer> entry : smelteryFuels.entrySet()) {
+            if(entry.getKey().isFluidEqual(in)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+     */
+
+    /** Reduces the fluidstack by one increment of the fuel and returns how much fuel duration it gives. */
+    /*
+    public static int consumeSmelteryFuel(FluidStack in) {
+        for(Map.Entry<FluidStack, Integer> entry : smelteryFuels.entrySet()) {
+            if(entry.getKey().isFluidEqual(in)) {
+                FluidStack fuel = entry.getKey();
+                int out = entry.getValue();
+                if(in.amount < fuel.amount) {
+                    float coeff = (float) in.amount / (float) fuel.amount;
+                    out = Math.round(coeff * in.amount);
+                    in.amount = 0;
+                }
+                else {
+                    in.amount -= fuel.amount;
+                }
+
+                return out;
+            }
+        }
+
+        return 0;
+    }
+
+     */
+
+    /** Returns all registered smeltery fuels */
+    /*
+    public static Collection<FluidStack> getSmelteryFuels() {
+        return ImmutableSet.copyOf(smelteryFuels.keySet());
+    }
+
+     */
+
+    /** Register all entities (and optionally subtypes) from config to melt into the specified fluidstack */
+    /*
+    public static void registerEntityMelting() {
+        for(String entry : Config.entityMelting) {
+            String[] parts = entry.split(";");
+            if(parts.length != 4) {
+                log.error("Invalid entity melting entry: {}", entry);
+                continue;
+            }
+            String entityRL = parts[0];
+            String subtypes = parts[1];
+            String fluidName = parts[2];
+            int amount;
+            try {
+                amount = Integer.parseInt(parts[3]);
+            } catch(NumberFormatException e) {
+                log.error("Invalid fluid amount in entity melting entry: {}", entry);
+                continue;
+            }
+            ResourceLocation entityLocation;
+            try {
+                entityLocation = new ResourceLocation(entityRL);
+                if(!Loader.isModLoaded(entityLocation.getResourceDomain())) {
+                    continue;
+                }
+            } catch(Exception e) {
+                log.error("Invalid entity resource location: {}", entityRL);
+                continue;
+            }
+            EntityEntry entityEntry = ForgeRegistries.ENTITIES.getValue(entityLocation);
+            if(entityEntry == null) {
+                log.error("Entity not found for melting: {}", entityRL);
+                continue;
+            }
+            Fluid fluid = FluidRegistry.getFluid(fluidName);
+            if(fluid == null) {
+                log.error("Fluid not found for entity melting: {}", fluidName);
+                continue;
+            }
+            Class<? extends Entity> entityClass = entityEntry.getEntityClass();
+            FluidStack fluidStack = new FluidStack(fluid, amount);
+            if(subtypes.equals("true")) {
+                TinkerRegistry.registerEntityMeltingForAll(entityClass, fluidStack);
+            } else {
+                TinkerRegistry.registerEntityMelting(entityClass, fluidStack);
+            }
+        }
+    }
+
+     */
+
+    /** Register all entities that extend the given class to melt into the specified fluidstack */
+    /*
+    public static void registerEntityMeltingForAll(Class<? extends Entity> clazz, FluidStack liquid) {
+        for(EntityEntry entry : ForgeRegistries.ENTITIES) {
+            Class<? extends Entity> entityClass = entry.getEntityClass();
+            if(clazz.isAssignableFrom(entityClass)) {
+                registerEntityMelting(entityClass, liquid);
+            }
+        }
+    }
+
+     */
+
+    /** Register an entity to melt into the given fluidstack. The fluidstack is returned for 1 heart damage */
+    /*
+    public static void registerEntityMelting(Class<? extends Entity> clazz, FluidStack liquid) {
+        ResourceLocation name = EntityList.getKey(clazz);
+
+        if(name == null) {
+            log.fatal("Entity Melting: Entity {} is not registered in the EntityList", clazz.getSimpleName());
+            return;
+        }
+
+        TinkerRegisterEvent.EntityMeltingRegisterEvent event = new TinkerRegisterEvent.EntityMeltingRegisterEvent(clazz, liquid);
+        if(event.fire()) {
+            entityMeltingRegistry.put(name, event.getNewFluidStack());
+        }
+        else {
+            try {
+                String output = liquid.getUnlocalizedName();
+                log.debug("Registration of entity melting for " + clazz.getName() + " into " + output + " has been cancelled by event");
+            } catch(Exception e) {
+                log.error("Error when logging entity melting event", e);
+            }
+        }
+        log.info("Registered entity melting for {} into {} mB of {}", clazz.getSimpleName(), liquid.amount, liquid.getLocalizedName());
+    }
+
+    public static FluidStack getMeltingForEntity(Entity entity) {
+        ResourceLocation name = EntityList.getKey(entity);
+        FluidStack fluidStack = entityMeltingRegistry.get(name);
+        // check if the fluid is the correct one to use
+        return Optional.ofNullable(fluidStack)
+                .map(slimeknights.tconstruct.library.utils.FluidUtil::getValidFluidStackOrNull)
+                .orElse(null);
+    }
+
+    public static Map<ResourceLocation, FluidStack> getAllEntityMeltingRecipes() {
+        return ImmutableMap.copyOf(entityMeltingRegistry);
+    }
+
+     */
+
+    /*---------------------------------------------------------------------------
+    | Drying Rack                                                               |
+    ---------------------------------------------------------------------------*/
+    /*
+    private static List<DryingRecipe> dryingRegistry = new ObjectArrayList<>();
+
+     */
+
+    /**
+     * @return The list of all drying rack recipes
+     */
+    /*
+    public static List<DryingRecipe> getAllDryingRecipes() {
+        return ImmutableList.copyOf(dryingRegistry);
+    }
+
+     */
+
+    /**
+     * Adds a new drying recipe
+     *
+     * @param input  Input ItemStack
+     * @param output Output ItemStack
+     * @param time   Recipe time in ticks
+     */
+    /*
+    public static void registerDryingRecipe(ItemStack input, ItemStack output, int time) {
+        if(output.isEmpty() || input.isEmpty()) {
+            return;
+        }
+        addDryingRecipe(new DryingRecipe(new RecipeMatch.Item(input, 1), output, time));
+    }
+
+     */
+
+    /**
+     * Adds a new drying recipe
+     *
+     * @param input  Input Item
+     * @param output Output ItemStack
+     * @param time   Recipe time in ticks
+     */
+    /*
+    public static void registerDryingRecipe(Item input, ItemStack output, int time) {
+        if(output.isEmpty() || input == null) {
+            return;
+        }
+
+        ItemStack stack = new ItemStack(input, 1, OreDictionary.WILDCARD_VALUE);
+        addDryingRecipe(new DryingRecipe(new RecipeMatch.Item(stack, 1), output, time));
+    }
+
+     */
+
+    /**
+     * Adds a new drying recipe
+     *
+     * @param input  Input Item
+     * @param output Output Item
+     * @param time   Recipe time in ticks
+     */
+    /*
+    public static void registerDryingRecipe(Item input, Item output, int time) {
+        if(output == null || input == null) {
+            return;
+        }
+
+        ItemStack stack = new ItemStack(input, 1, OreDictionary.WILDCARD_VALUE);
+        addDryingRecipe(new DryingRecipe(new RecipeMatch.Item(stack, 1), new ItemStack(output), time));
+    }
+
+     */
+
+    /**
+     * Adds a new drying recipe
+     *
+     * @param input  Input Block
+     * @param output Output Block
+     * @param time   Recipe time in ticks
+     */
+    /*
+    public static void registerDryingRecipe(Block input, Block output, int time) {
+        if(output == null || input == null) {
+            return;
+        }
+
+        ItemStack stack = new ItemStack(input, 1, OreDictionary.WILDCARD_VALUE);
+        addDryingRecipe(new DryingRecipe(new RecipeMatch.Item(stack, 1), new ItemStack(output), time));
+    }
+
+     */
+
+    /**
+     * Adds a new drying recipe
+     *
+     * @param oredict Input ore dictionary entry
+     * @param output  Output ItemStack
+     * @param time    Recipe time in ticks
+     */
+    /*
+    public static void registerDryingRecipe(String oredict, ItemStack output, int time) {
+        if(output.isEmpty() || oredict == null) {
+            return;
+        }
+
+        addDryingRecipe(new DryingRecipe(new RecipeMatch.Oredict(oredict, 1), output, time));
+    }
+
+    public static void addDryingRecipe(DryingRecipe recipe) {
+        if(new TinkerRegisterEvent.DryingRackRegisterEvent(recipe).fire()) {
+            dryingRegistry.add(recipe);
+        }
+        else {
+            try {
+                String input = recipe.input.getInputs().stream().findFirst().map(ItemStack::getUnlocalizedName).orElse("?");
+                String output = recipe.getResult().getUnlocalizedName();
+                log.debug("Registration of drying rack recipe for " + output + " from " + input + " has been cancelled by event");
+            } catch(Exception e) {
+                log.error("Error when logging drying rack event", e);
+            }
+        }
+    }
+
+     */
+
+    /**
+     * Gets the drying time for a drying recipe
+     *
+     * @param input Input ItemStack
+     * @return Output drying time, or -1 if no recipe is found
+     */
+    /*
+    public static int getDryingTime(ItemStack input) {
+        for(DryingRecipe r : dryingRegistry) {
+            if(r.matches(input)) {
+                return r.getTime();
+            }
+        }
+
+        return -1;
+    }
+
+     */
+
+    /**
+     * Gets the result for a drying recipe
+     *
+     * @param input Input ItemStack
+     * @return Output A copy of the output ItemStack, or Itemstack.EMPTY if no recipe is found
+     */
+    /*
+    public static ItemStack getDryingResult(ItemStack input) {
+        for(DryingRecipe r : dryingRegistry) {
+            if(r.matches(input)) {
+                return r.getResult();
+            }
+        }
+
+        return ItemStack.EMPTY;
+    }
+
+     */
+
+  /*---------------------------------------------------------------------------
+  | MATERIAL INTEGRATION                                                      |
+  ---------------------------------------------------------------------------*/
+
+    /*
+    private static List<MaterialIntegration> materialIntegrations = new ArrayList<>();
+
+    public static MaterialIntegration integrate(Material material) {
+        return integrate(new MaterialIntegration(material));
+    }
+
+    public static MaterialIntegration integrate(Material material, Fluid fluid) {
+        return integrate(new MaterialIntegration(material, fluid));
+    }
+
+    public static MaterialIntegration integrate(Material material, String oreRequirement) {
+        MaterialIntegration materialIntegration = new MaterialIntegration(oreRequirement, material, null, null);
+        materialIntegration.setRepresentativeItem(oreRequirement);
+        return integrate(materialIntegration);
+    }
+
+    public static MaterialIntegration integrate(Material material, Fluid fluid, String oreSuffix) {
+        return integrate(new MaterialIntegration(material, fluid, oreSuffix));
+    }
+
+    public static MaterialIntegration integrate(Fluid fluid, String oreSuffix) {
+        return integrate(new MaterialIntegration(null, fluid, oreSuffix));
+    }
+
+     */
+
+    /**
+     * Causes a material to be default-integrated with the provided information.
+     * Includes fluids, recipes and oredict integration
+     *
+     * Can be done during preInit and Init
+     */
+    /*
+    public static MaterialIntegration integrate(MaterialIntegration materialIntegration) {
+        MaterialEvent.IntegrationEvent event = new MaterialEvent.IntegrationEvent(materialIntegration.material, materialIntegration);
+        if(MinecraftForge.EVENT_BUS.post(event)) {
+            // cancelled
+            log.debug("Registration of material integration for material " + materialIntegration.material + " has been cancelled by event");
+        }
+        else {
+            materialIntegrations.add(materialIntegration);
+        }
+
+        return materialIntegration;
+    }
+
+    public static List<MaterialIntegration> getMaterialIntegrations() {
+        return ImmutableList.copyOf(materialIntegrations);
+    }
+    */
+
+  /*---------------------------------------------------------------------------
+  | Traceability & Internal stuff                                             |
+  ---------------------------------------------------------------------------*/
+
+    /**
+     * Gets the priority of a mod based on config.
+     * Lower index means higher priority. Returns Integer.MAX_VALUE if mod is not in the priority list.
+     */
+
+    static int getModPriority(String modId) {
+        List<? extends String> mod_prioritires = Config.MOD_PRIORITIES.get();
+        int i = 0;
+        for(String id : mod_prioritires) {
+            if(Objects.equals(id, modId)) {
+                return i;
+            }
+            i++;
+        }
+        // mods not in priority list have the lowest priority
+        return Integer.MAX_VALUE;
+    }
+
+    static void putMaterialTrace(String materialIdentifier) {
+        ModContainer activeMod = ModLoadingContext.get().getActiveContainer();
+        materialRegisteredByMod.put(materialIdentifier, activeMod);
+    }
+
+    static void putStatTrace(String materialIdentifier, IMaterialStats stats, ModContainer trace) {
+        if(!statRegisteredByMod.containsKey(materialIdentifier)) {
+            statRegisteredByMod.put(materialIdentifier, new HashMap<>());
+        }
+        statRegisteredByMod.get(materialIdentifier).put(stats.getIdentifier(), trace);
+    }
+
+    static void putTraitTrace(String materialIdentifier, ITrait trait, ModContainer trace) {
+        if(!traitRegisteredByMod.containsKey(materialIdentifier)) {
+            traitRegisteredByMod.put(materialIdentifier, new HashMap<>());
+        }
+        traitRegisteredByMod.get(materialIdentifier).put(trait.getIdentifier(), trace);
+    }
+
+    public static ModContainer getTrace(Material material) {
+        return materialRegisteredByMod.get(material.identifier);
+    }
+
+    /*
+    private static void error(String message, Object... params) {
+        throw new TinkerAPIException(String.format(message, params));
+    }
+
+     */
+
 
     public static void register(IEventBus eventBus) {
         CREATIVE_MODE_TABS.register(eventBus);

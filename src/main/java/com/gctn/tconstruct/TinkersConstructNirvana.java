@@ -3,6 +3,7 @@ package com.gctn.tconstruct;
 import com.gctn.tconstruct.debug.DynamicColoredParts;
 import com.gctn.tconstruct.library.TinkerRegistry;
 import com.gctn.tconstruct.library.tools.TinkerMaterials;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 
@@ -27,5 +28,7 @@ public class TinkersConstructNirvana {
         TinkerRegistry.register(modEventBus);
         DynamicColoredParts.register(modEventBus);
         new TinkerMaterials();
+        NeoForge.EVENT_BUS.register(DynamicColoredParts.class);
+        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 }

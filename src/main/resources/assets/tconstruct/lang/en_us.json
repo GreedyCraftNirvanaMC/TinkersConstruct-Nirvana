@@ -58,5 +58,7 @@
   "material.leaf.name": "Leaf",
   "material.slimeleaf_blue.name": "Blue Slimeleaf",
   "material.slimeleaf_orange.name": "Magma Slimeleaf",
-  "material.slimeleaf_purple.name": "Purple Slimeleaf"
+  "material.slimeleaf_purple.name": "Purple Slimeleaf",
+  "tooltip.part.missing_material": "Unknown Material",
+  "tooltip.part.missing_info": "Unknown Material Info"
 }

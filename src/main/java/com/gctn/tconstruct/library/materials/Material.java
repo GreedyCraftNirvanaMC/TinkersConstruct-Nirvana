@@ -220,5 +220,13 @@ public class Material {
         return identifier;
     }
 
+    /**
+     * Do not use this function directly stats. Use TinkerRegistry.addMaterialStats instead.
+     */
+    public Material addStats(IMaterialStats materialStats) {
+        this.stats.put(materialStats.getIdentifier(), materialStats);
+        return this;
+    }
+
     // TODO 大量功能仍未迁移
 }
