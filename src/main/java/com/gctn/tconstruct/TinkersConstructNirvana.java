@@ -1,9 +1,11 @@
 package com.gctn.tconstruct;
 
-import com.gctn.tconstruct.debug.DynamicColoredParts;
+import com.gctn.tconstruct.library.TinkerMaterials;
 import com.gctn.tconstruct.library.TinkerRegistry;
-import com.gctn.tconstruct.library.tools.TinkerMaterials;
+import com.gctn.tconstruct.library.toolparts.ToolRod;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 
@@ -11,6 +13,9 @@ import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.ModContainer;
+
+import static com.gctn.tconstruct.library.toolparts.PartColor.PART_COLOR;
+import static com.gctn.tconstruct.library.toolparts.ToolRod.TOOL_ROD;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(TinkersConstructNirvana.MODID)
@@ -21,14 +26,9 @@ public class TinkersConstructNirvana {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public TinkersConstructNirvana(IEventBus modEventBus, ModContainer modContainer) {
-        // Register ourselves for server and other game events we are interested in.
-        // Note that this is necessary if and only if we want *this* class (TinkersConstructNirvana) to respond directly to events.
-        // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
-        // NeoForge.EVENT_BUS.register(this);
         TinkerRegistry.register(modEventBus);
-        DynamicColoredParts.register(modEventBus);
+        ToolRod.register(modEventBus);
         new TinkerMaterials();
-        NeoForge.EVENT_BUS.register(DynamicColoredParts.class);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 }

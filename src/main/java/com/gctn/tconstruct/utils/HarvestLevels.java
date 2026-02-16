@@ -1,12 +1,11 @@
 package com.gctn.tconstruct.utils;
 
+import com.gctn.tconstruct.library.TinkerMaterials;
 import com.gctn.tconstruct.library.Util;
-import com.gctn.tconstruct.library.tools.TinkerMaterials;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import com.google.common.collect.Maps;
 
-import java.awt.*;
 import java.util.Map;
 
 public class HarvestLevels {
@@ -27,11 +26,11 @@ public class HarvestLevels {
     }
 
     public static void init() {
-        harvestLevelNames.put(STONE, TinkerMaterials.stone.getTextColor() + Util.translate("ui.mininglevel.stone"));
-        harvestLevelNames.put(IRON, TinkerMaterials.iron.getTextColor() + Util.translate("ui.mininglevel.iron"));
+        harvestLevelNames.put(STONE, TinkerMaterials.stone.getColor() + Util.translate("ui.mininglevel.stone"));
+        harvestLevelNames.put(IRON, TinkerMaterials.iron.getColor() + Util.translate("ui.mininglevel.iron"));
         harvestLevelNames.put(DIAMOND, ChatFormatting.AQUA + Util.translate("ui.mininglevel.diamond"));
-        harvestLevelNames.put(OBSIDIAN, TinkerMaterials.obsidian.getTextColor() + Util.translate("ui.mininglevel.obsidian"));
-        harvestLevelNames.put(COBALT, TinkerMaterials.cobalt.getTextColor() + Util.translate("ui.mininglevel.cobalt"));
+        harvestLevelNames.put(OBSIDIAN, TinkerMaterials.obsidian.getColor() + Util.translate("ui.mininglevel.obsidian"));
+        harvestLevelNames.put(COBALT, TinkerMaterials.cobalt.getColor() + Util.translate("ui.mininglevel.cobalt"));
 
         // custom names via resource pack.. deprecated
         String base = "gui.mining";
