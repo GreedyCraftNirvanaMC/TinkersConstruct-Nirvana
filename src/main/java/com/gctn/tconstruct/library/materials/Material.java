@@ -1,17 +1,22 @@
 package com.gctn.tconstruct.library.materials;
 
-import net.minecraft.ChatFormatting;
+import com.gctn.tconstruct.library.stats.AbstractMaterialStats;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Material {
     public final String identifier;
     public final int color;
     public final boolean hidden;
 
-    // 是否可以直接使用部件加工台
-    protected boolean craftable;
+    public Map<String, AbstractMaterialStats> stats = new HashMap<>();
 
-    // 是否可以使用浇筑方式合成
-    protected boolean castable;
+    // 是否可以直接使用部件加工台(默认false)
+    protected boolean craftable = false;
+
+    // 是否可以使用浇筑方式合成(默认false)
+    protected boolean castable = false;
 
     private boolean isHidden;
 
@@ -23,6 +28,28 @@ public class Material {
         this.identifier = identifier;
         this.color = color;
         this.hidden = hidden;
+    }
+
+    // 设置合成方式
+    public Material setCraftable(boolean craftable) {
+        this.craftable = craftable;
+        return this;
+    }
+    public Material setCastable(boolean castable) {
+        this.castable = castable;
+        return this;
+    }
+
+    // 添加材料属性
+    public void addMaterialStats(AbstractMaterialStats... stats) {
+        for (AbstractMaterialStats stat : stats) {
+            this.stats.put(stat.identifier, stat);
+        }
+    }
+
+    // 获取材料属性
+    public Map<String, AbstractMaterialStats> getStats() {
+        return stats;
     }
 
     public int getColor() { return color; }

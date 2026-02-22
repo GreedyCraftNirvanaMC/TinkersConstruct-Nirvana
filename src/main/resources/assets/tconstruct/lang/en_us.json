@@ -1,8 +1,12 @@
 {
   "tinker_tool_parts_tab": "TinkerToolParts",
-  "item.tconstruct.tool_rod": "Tool Rod",
+  "tinker_tools_tab": "TinkerTools",
 
   "item.tconstruct.tool_rod.name": "Tool Rod",
+  "item.tconstruct.binding.name": "Binding",
+  "item.tconstruct.pickaxe_head.name": "Pickaxe Head",
+
+  "item.tconstruct.pickaxe.name": "Pickaxe",
 
   "material.wood.name": "Wood",
   "material.wood.prefix": "Wooden %s",

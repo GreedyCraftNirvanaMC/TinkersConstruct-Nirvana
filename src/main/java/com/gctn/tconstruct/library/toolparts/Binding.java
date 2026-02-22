@@ -20,30 +20,28 @@ import java.util.List;
 
 import static com.gctn.tconstruct.library.toolparts.PartColor.PART_COLOR;
 
-public class ToolRod extends ToolPart {
-    private final String materialTag = "";
-
-    public ToolRod(int cost) {
+public class Binding extends ToolPart {
+    public Binding(int cost) {
         super(cost);
     }
 
     public static final DeferredRegister.Items ITEMS =
             DeferredRegister.createItems(TinkersConstructNirvana.MODID);
 
-    public static final DeferredItem<Item> TOOL_ROD = ITEMS.register("parts/tool_rod",
-            () -> new ToolRod(144));
+    public static final DeferredItem<Item> BINDING = ITEMS.register("parts/binding",
+            () -> new Binding(144));
 
     public static void getAllColoredParts(Collection<ItemStack> coloredParts) {
         List<Material> materials = TinkerMaterials.materials;
         for (Material material : materials) {
-            if (material.getStats() == null || !material.getStats().containsKey("Handle")) { continue; }
+            if (material.getStats() == null || !material.getStats().containsKey("Extra")) { continue; }
             ItemStack stack = getColoredPart(material);
             coloredParts.add(stack);
         }
     }
 
     public static ItemStack getColoredPart(Material material) {
-        ItemStack stack = new ItemStack(TOOL_ROD.get());
+        ItemStack stack = new ItemStack(BINDING.get());
         CompoundTag tag = new CompoundTag();
         tag.putString(Tags.PART_MATERIAL, material.identifier);
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
@@ -51,18 +49,18 @@ public class ToolRod extends ToolPart {
                         Component.translatable(
                                 "material."+material.identifier+".name").getString()
                                 +" "
-                                +Component.translatable("item.tconstruct.tool_rod.name").getString()
+                                +Component.translatable("item.tconstruct.binding.name").getString()
                 )
         );
         return stack;
     }
 
     private static void registerItemColors(RegisterColorHandlersEvent.Item event) {
-        event.register(PART_COLOR, TOOL_ROD.get());
+        event.register(PART_COLOR, BINDING.get());
     }
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
-        eventBus.addListener(ToolRod::registerItemColors);
+        eventBus.addListener(Binding::registerItemColors);
     }
 }

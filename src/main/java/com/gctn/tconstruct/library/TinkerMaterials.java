@@ -1,12 +1,18 @@
 package com.gctn.tconstruct.library;
 
 import com.gctn.tconstruct.library.materials.Material;
+import com.gctn.tconstruct.library.stats.ExtraMaterialStats;
+import com.gctn.tconstruct.library.stats.HandleMaterialStats;
+import com.gctn.tconstruct.library.stats.HeadMaterialStats;
+import com.gctn.tconstruct.utils.HarvestLevels;
 import com.google.common.collect.Lists;
 
 import java.util.List;
 
 public class TinkerMaterials {
     public static final List<Material> materials = Lists.newArrayList();
+    public static final List<Material> craftableMaterials = Lists.newArrayList();
+    public static final List<Material> castableMaterials = Lists.newArrayList();
 
     // natural resources/blocks
     public static final Material wood       = mat("wood", 0xff8e661b);
@@ -53,6 +59,9 @@ public class TinkerMaterials {
     // specul
     public static final Material xu;
 
+    // unknown
+    public static final Material unknown;
+
     // bowstring materials 弓弦
     public static final Material string    = mat("string", 0xffeeeeee);
     public static final Material vine      = mat("vine", 0xff40a10f);
@@ -80,7 +89,40 @@ public class TinkerMaterials {
         return mat;
     }
 
+    public static void setCraftableMaterials(Material... matList) {
+        for (Material mat : matList) {
+            mat.setCraftable(true);
+        }
+    }
+
+    public static void setCastableMaterials(Material... matList) {
+        for (Material mat : matList) {
+            mat.setCastable(true);
+        }
+    }
+
+    // 注册材料属性
+    public static void registerToolMaterialStats() {
+        wood.addMaterialStats(new HeadMaterialStats(35, HarvestLevels.STONE, 1, 1),
+                new HandleMaterialStats(1, 25),
+                new ExtraMaterialStats(15));
+        stone.addMaterialStats(new HeadMaterialStats(100, HarvestLevels.IRON, 1, 1),
+                new HandleMaterialStats(1, 100),
+                new ExtraMaterialStats(150));
+    }
+
     static {
         xu = new Material("unstable", 0xFFFFFFFF, true);
+        unknown = new Material("unknown", 0xFFFFFFFF, true);
     }
+
+    // 设定合成方式
+    static {
+        setCraftableMaterials(wood, stone, flint, cactus, bone, obsidian, prismarine, endstone, paper, sponge, firewood,
+                knightslime, slime, blueslime, magmaslime);
+        setCastableMaterials(iron, pigiron);
+
+        registerToolMaterialStats();
+    }
+
 }
