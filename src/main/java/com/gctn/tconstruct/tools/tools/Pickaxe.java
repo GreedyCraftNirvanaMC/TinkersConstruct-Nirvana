@@ -1,6 +1,5 @@
 package com.gctn.tconstruct.tools.tools;
 
-import com.gctn.tconstruct.TinkersConstructNirvana;
 import com.gctn.tconstruct.library.materials.Material;
 import com.gctn.tconstruct.tools.TinkerTools;
 import net.minecraft.core.component.DataComponents;
@@ -12,15 +11,11 @@ import net.minecraft.world.item.component.CustomData;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.registries.DeferredItem;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
 import static com.gctn.tconstruct.tools.toolcolors.PickaxeColor.PICKAXE_COLOR;
 
 
 public class Pickaxe extends TinkerTools {
-    public static final DeferredRegister.Items ITEMS =
-            DeferredRegister.createItems(TinkersConstructNirvana.MODID);
-
     public static final DeferredItem<Item> PICKAXE = ITEMS.register("pickaxe/pickaxe",
             () -> new Pickaxe());
 
@@ -49,7 +44,6 @@ public class Pickaxe extends TinkerTools {
     }
 
     public static void register(IEventBus eventBus) {
-        ITEMS.register(eventBus);
         eventBus.addListener(Pickaxe::registerPickaxeColors);
     }
 }

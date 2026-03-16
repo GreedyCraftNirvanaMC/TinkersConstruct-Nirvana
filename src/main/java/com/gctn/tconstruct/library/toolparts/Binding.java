@@ -1,6 +1,5 @@
 package com.gctn.tconstruct.library.toolparts;
 
-import com.gctn.tconstruct.TinkersConstructNirvana;
 import com.gctn.tconstruct.library.TinkerMaterials;
 import com.gctn.tconstruct.library.materials.Material;
 import com.gctn.tconstruct.utils.Tags;
@@ -13,7 +12,6 @@ import net.minecraft.world.item.component.CustomData;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.registries.DeferredItem;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,9 +22,6 @@ public class Binding extends ToolPart {
     public Binding(int cost) {
         super(cost);
     }
-
-    public static final DeferredRegister.Items ITEMS =
-            DeferredRegister.createItems(TinkersConstructNirvana.MODID);
 
     public static final DeferredItem<Item> BINDING = ITEMS.register("parts/binding",
             () -> new Binding(144));
@@ -60,7 +55,6 @@ public class Binding extends ToolPart {
     }
 
     public static void register(IEventBus eventBus) {
-        ITEMS.register(eventBus);
         eventBus.addListener(Binding::registerItemColors);
     }
 }

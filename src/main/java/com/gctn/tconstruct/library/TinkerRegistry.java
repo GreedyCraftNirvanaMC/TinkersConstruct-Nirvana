@@ -3,7 +3,9 @@ package com.gctn.tconstruct.library;
 import com.gctn.tconstruct.TinkersConstructNirvana;
 import com.gctn.tconstruct.library.toolparts.Binding;
 import com.gctn.tconstruct.library.toolparts.PickaxeHead;
+import com.gctn.tconstruct.library.toolparts.ToolPart;
 import com.gctn.tconstruct.library.toolparts.ToolRod;
+import com.gctn.tconstruct.tools.TinkerTools;
 import com.gctn.tconstruct.tools.tools.Pickaxe;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -55,11 +57,13 @@ public class TinkerRegistry {
         CREATIVE_MODE_TABS.register(eventBus);
 
         // Toolparts
+        ToolPart.register(eventBus);
         Binding.register(eventBus);
         PickaxeHead.register(eventBus);
         ToolRod.register(eventBus);
 
         // Tools
+        TinkerTools.register(eventBus);
         Pickaxe.register(eventBus);
     }
 }
