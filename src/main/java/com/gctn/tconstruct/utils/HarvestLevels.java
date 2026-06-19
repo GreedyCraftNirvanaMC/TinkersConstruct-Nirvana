@@ -4,6 +4,10 @@ import com.gctn.tconstruct.library.TinkerMaterials;
 import com.gctn.tconstruct.library.Util;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.tags.TagKey;
+
 import com.google.common.collect.Maps;
 
 import java.util.Map;
@@ -47,5 +51,18 @@ public class HarvestLevels {
             harvestLevelNames.put(i, Component.translatable(String.format("%s%d", base, i)).toString());
             i++;
         }
+    }
+
+    public static TagKey<Block> getIncorrectBlocksForDrops(int harvestLevel) {
+        if (harvestLevel <= HarvestLevels.STONE) {
+            return BlockTags.INCORRECT_FOR_WOODEN_TOOL;
+        }
+        if (harvestLevel == HarvestLevels.IRON) {
+            return BlockTags.INCORRECT_FOR_STONE_TOOL;
+        }
+        if (harvestLevel == HarvestLevels.DIAMOND) {
+            return BlockTags.INCORRECT_FOR_IRON_TOOL;
+        }
+        return BlockTags.INCORRECT_FOR_DIAMOND_TOOL;
     }
 }

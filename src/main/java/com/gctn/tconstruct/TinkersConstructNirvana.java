@@ -22,4 +22,5 @@ public class TinkersConstructNirvana {
         new TinkerMaterials();
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
+    
 }

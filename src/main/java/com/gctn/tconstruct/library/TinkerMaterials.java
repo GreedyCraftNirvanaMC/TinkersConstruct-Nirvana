@@ -103,10 +103,10 @@ public class TinkerMaterials {
 
     // 注册材料属性
     public static void registerToolMaterialStats() {
-        wood.addMaterialStats(new HeadMaterialStats(35, HarvestLevels.STONE, 1, 1),
+        wood.addMaterialStats(new HeadMaterialStats(35, HarvestLevels.STONE, 1, 2),
                 new HandleMaterialStats(1, 25),
                 new ExtraMaterialStats(15));
-        stone.addMaterialStats(new HeadMaterialStats(100, HarvestLevels.IRON, 1, 1),
+        stone.addMaterialStats(new HeadMaterialStats(100, HarvestLevels.IRON, 1, 4),
                 new HandleMaterialStats(1, 100),
                 new ExtraMaterialStats(150));
     }
