@@ -7,6 +7,7 @@ import com.gctn.tconstruct.library.toolparts.ToolPart;
 import com.gctn.tconstruct.library.toolparts.ToolRod;
 import com.gctn.tconstruct.tools.TinkerTools;
 import com.gctn.tconstruct.tools.tools.Pickaxe;
+import com.gctn.tconstruct.debug.TestTable;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -49,6 +50,16 @@ public class TinkerRegistry {
                     .title(Component.translatable("tinker_tools_tab"))
                     .displayItems(((itemDisplayParameters, output) -> {
                         output.accept(Pickaxe.getColoredPickaxe(wood, stone, unknown));
+                    }))
+                    .build());
+
+    // 方块
+    public static final Supplier<CreativeModeTab> BLOCKS_TAB =
+            CREATIVE_MODE_TABS.register("tinker_blocks", () -> CreativeModeTab.builder()
+                    .icon(() -> new ItemStack(Items.COBBLESTONE))
+                    .title(Component.translatable("tinker_blocks_tab"))
+                    .displayItems(((itemDisplayParameters, output) -> {
+                        output.accept(TestTable.TEST_TABLE);
                     }))
                     .build());
 

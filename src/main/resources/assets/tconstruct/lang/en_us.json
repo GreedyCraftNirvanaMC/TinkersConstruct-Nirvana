@@ -1,6 +1,9 @@
 {
   "tinker_tool_parts_tab": "TinkerToolParts",
   "tinker_tools_tab": "TinkerTools",
+  "tinker_blocks_tab": "TinkerBlocks",
+
+  "block.tconstruct.toolstation": "Tool Station",
 
   "item.tconstruct.tool_rod.name": "Tool Rod",
   "item.tconstruct.binding.name": "Binding",
