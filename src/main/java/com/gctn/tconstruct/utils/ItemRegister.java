@@ -1,14 +1,14 @@
-package com.gctn.tconstruct.debug;
+package com.gctn.tconstruct.utils;
 
-import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import com.gctn.tconstruct.TinkersConstructNirvana;
 
-public class TestItems {
-    public static final DeferredRegister.Items TEST_ITEMS =
+public class ItemRegister {
+    public static final DeferredRegister.Items ITEMS =
         DeferredRegister.createItems(TinkersConstructNirvana.MODID);
-    
+
     public static void register(IEventBus eventBus) {
-        TEST_ITEMS.register(eventBus);
+        ITEMS.register(eventBus);
     }
 }

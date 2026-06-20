@@ -7,13 +7,14 @@ import com.gctn.tconstruct.library.toolparts.ToolPart;
 import com.gctn.tconstruct.library.toolparts.ToolRod;
 import com.gctn.tconstruct.tools.TinkerTools;
 import com.gctn.tconstruct.tools.tools.Pickaxe;
-import com.gctn.tconstruct.debug.TestTable;
+import com.gctn.tconstruct.utils.BlockRegister;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.ArrayList;
@@ -59,7 +60,9 @@ public class TinkerRegistry {
                     .icon(() -> new ItemStack(Items.COBBLESTONE))
                     .title(Component.translatable("tinker_blocks_tab"))
                     .displayItems(((itemDisplayParameters, output) -> {
-                        output.accept(TestTable.TEST_TABLE);
+                        for (DeferredBlock<?> block : BlockRegister.entries()) {
+                            output.accept(block.get());
+                        }
                     }))
                     .build());
 

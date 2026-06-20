@@ -1,0 +1,43 @@
+package com.gctn.tconstruct.utils;
+
+import com.gctn.tconstruct.TinkersConstructNirvana;
+import com.gctn.tconstruct.common.block.OreBlocks;
+import com.gctn.tconstruct.common.block.StationBlocks;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.function.Supplier;
+
+public class BlockRegister {
+    public static final DeferredRegister.Blocks BLOCKS =
+        DeferredRegister.createBlocks(TinkersConstructNirvana.MODID);
+
+    public static <T extends Block> DeferredBlock<T> registerBlockWithItem(String name, Supplier<T> block) {
+        return registerBlockWithItem(name, name, block);
+    }
+
+    public static <T extends Block> DeferredBlock<T> registerBlockWithItem(String blockName, String itemName, Supplier<T> block) {
+        DeferredBlock<T> registeredBlock = BLOCKS.register(blockName, block);
+        ItemRegister.ITEMS.register(itemName, () -> new BlockItem(registeredBlock.get(), new Item.Properties()));
+        return registeredBlock;
+    }
+
+    public static void register(IEventBus eventBus) {
+        entries();
+        BLOCKS.register(eventBus);
+    }
+
+    public static Collection<DeferredBlock<?>> entries() {
+        // Calling each category's entries initializes its static registrations.
+        Collection<DeferredBlock<?>> entries = new ArrayList<>();
+        entries.addAll(StationBlocks.entries());
+        entries.addAll(OreBlocks.entries());
+        return entries;
+    }
+}
