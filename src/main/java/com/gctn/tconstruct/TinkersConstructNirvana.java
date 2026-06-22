@@ -1,9 +1,10 @@
 package com.gctn.tconstruct;
 
+import com.gctn.tconstruct.common.tables.TableRegistryBus;
 import com.gctn.tconstruct.library.TinkerMaterials;
 import com.gctn.tconstruct.library.TinkerRegistry;
-import com.gctn.tconstruct.utils.ItemRegister;
 import com.gctn.tconstruct.utils.BlockRegister;
+import com.gctn.tconstruct.utils.ItemRegister;
 import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -22,6 +23,7 @@ public class TinkersConstructNirvana {
     public TinkersConstructNirvana(IEventBus modEventBus, ModContainer modContainer) {
         TinkerRegistry.register(modEventBus);
         BlockRegister.register(modEventBus);
+        TableRegistryBus.register(modEventBus);
         ItemRegister.register(modEventBus);
         new TinkerMaterials();
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);

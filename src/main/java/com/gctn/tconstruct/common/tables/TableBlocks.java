@@ -1,17 +1,16 @@
-package com.gctn.tconstruct.common.block;
+package com.gctn.tconstruct.common.tables;
 
 import com.gctn.tconstruct.utils.BlockRegister;
 
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
 import java.util.Collection;
 import java.util.List;
 
-public class StationBlocks {
-    public static final DeferredBlock<Block> TOOL_STATION =
-        BlockRegister.registerBlockWithItem("toolstation", "blockitem/toolstation", () -> new Block(
+public class TableBlocks {
+    public static final DeferredBlock<ToolStationBlock> TOOL_STATION =
+        BlockRegister.registerBlockWithItem("toolstation", "blockitem/toolstation", () -> new ToolStationBlock(
             BlockBehaviour.Properties.of()
                 .destroyTime(1.5F)
                 .explosionResistance(1.0F)

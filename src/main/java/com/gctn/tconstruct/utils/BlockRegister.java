@@ -2,7 +2,7 @@ package com.gctn.tconstruct.utils;
 
 import com.gctn.tconstruct.TinkersConstructNirvana;
 import com.gctn.tconstruct.common.block.OreBlocks;
-import com.gctn.tconstruct.common.block.StationBlocks;
+import com.gctn.tconstruct.common.tables.TableBlocks;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -36,7 +36,7 @@ public class BlockRegister {
     public static Collection<DeferredBlock<?>> entries() {
         // Calling each category's entries initializes its static registrations.
         Collection<DeferredBlock<?>> entries = new ArrayList<>();
-        entries.addAll(StationBlocks.entries());
+        entries.addAll(TableBlocks.entries());
         entries.addAll(OreBlocks.entries());
         return entries;
     }
