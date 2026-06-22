@@ -3,6 +3,7 @@ package com.gctn.tconstruct.common.tables.client;
 import com.gctn.tconstruct.TinkersConstructNirvana;
 import com.gctn.tconstruct.common.tables.ToolStationMenu;
 import com.gctn.tconstruct.common.tables.ToolStationMenu.Mode;
+import com.gctn.tconstruct.common.tables.ToolStationSlotPositions.SlotPosition;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -55,10 +56,6 @@ public class ToolStationScreen extends AbstractContainerScreen<ToolStationMenu> 
         this.addModeButton(Mode.PICKAXE, new ItemStack(Items.WOODEN_PICKAXE), 2);
         this.addModeButton(Mode.SHOVEL, new ItemStack(Items.WOODEN_SHOVEL), 3);
         this.addModeButton(Mode.AXE, new ItemStack(Items.WOODEN_AXE), 4);
-        this.addModeButton(Mode.AXE, new ItemStack(Items.WOODEN_AXE), 5);
-        this.addModeButton(Mode.AXE, new ItemStack(Items.WOODEN_AXE), 6);
-        this.addModeButton(Mode.AXE, new ItemStack(Items.WOODEN_AXE), 7);
-        this.addModeButton(Mode.AXE, new ItemStack(Items.WOODEN_AXE), 8);
         this.updateModeButtons();
     }
 
@@ -75,14 +72,17 @@ public class ToolStationScreen extends AbstractContainerScreen<ToolStationMenu> 
         guiGraphics.blit(BACKGROUND_TEXTURE, this.leftPos - 110, this.topPos, 0, 180, 108, 7);
         guiGraphics.blit(BACKGROUND_TEXTURE, this.leftPos - 2, this.topPos, 131, 180, 2, 7);
         guiGraphics.blit(BACKGROUND_TEXTURE, this.leftPos + this.imageWidth, this.topPos, 0, 180, 133, 7);
-        renderItemSlot(guiGraphics, 32, 41);
-        renderItemSlot(guiGraphics, 14, 61);
-        renderItemSlot(guiGraphics, 50, 61);
-        renderItemSlot(guiGraphics, 10, 36);
-        renderItemSlot(guiGraphics, 54, 36);
-        renderItemSlot(guiGraphics, 32, 18);
-        if (this.menu.hasToolSlotItem()) {
+        for (int inputSlot = 0; inputSlot < ToolStationMenu.INPUT_SLOT_COUNT; inputSlot++) {
+            if (this.menu.isInputSlotActive(inputSlot)) {
+                SlotPosition position = this.menu.getInputSlotPosition(inputSlot);
+                renderItemSlot(guiGraphics, position.x(), position.y());
+            }
+        }
+        if (!this.menu.isMode(Mode.DISASSEMBLE)) {
             guiGraphics.blit(BACKGROUND_TEXTURE, this.leftPos + 104, this.topPos + 38, 0, 241, 8, 15);
+        }
+        else {
+            guiGraphics.blit(BACKGROUND_TEXTURE, this.leftPos + 82, this.topPos + 38, 8, 241, 8, 15);
         }
     }
 
