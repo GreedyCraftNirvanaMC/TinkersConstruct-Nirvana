@@ -5,6 +5,7 @@ import com.gctn.tconstruct.tables.data.ModeAwareInputSlot;
 import com.gctn.tconstruct.tables.data.ToolStationSlotPositions;
 import com.gctn.tconstruct.tables.data.ToolStationSlotPositions.SlotPosition;
 import com.gctn.tconstruct.tables.recipe.ToolAssemblyRecipe;
+import com.gctn.tconstruct.tables.recipe.ToolStationDefaultRecipes;
 import com.gctn.tconstruct.tables.recipe.ToolStationAssemblyRecipes;
 import com.gctn.tconstruct.tables.recipe.ToolStationDisassemblyRecipes;
 import com.gctn.tconstruct.tables.recipe.ToolStationDisassemblyRecipes.PartList;
@@ -261,6 +262,10 @@ public class ToolStationMenu extends AbstractContainerMenu {
     }
 
     private ItemStack createResult() {
+        if (this.mode == Mode.DEFAULT) {
+            return ToolStationDefaultRecipes.createResult(this.toolStation);
+        }
+
         ToolAssemblyRecipe recipe = ToolStationAssemblyRecipes.get(this.mode);
         if (recipe == null) {
             return ItemStack.EMPTY;
@@ -269,13 +274,25 @@ public class ToolStationMenu extends AbstractContainerMenu {
         return recipe.createResult(this.toolStation);
     }
 
-    private boolean hasAssemblyResult() {
+    private boolean hasCraftingResult() {
         return !this.createResult().isEmpty();
     }
 
-    private void takeAssemblyResult(Player player) {
+    private void takeCraftingResult(Player player) {
+        if (this.mode == Mode.DEFAULT) {
+            if (!this.hasCraftingResult()) {
+                this.updateResult();
+                return;
+            }
+
+            ToolStationDefaultRecipes.consumeInputs(this.toolStation);
+            this.toolStation.setChanged();
+            this.updateResult();
+            return;
+        }
+
         ToolAssemblyRecipe recipe = ToolStationAssemblyRecipes.get(this.mode);
-        if (recipe == null || !this.hasAssemblyResult()) {
+        if (recipe == null || !this.hasCraftingResult()) {
             this.updateResult();
             return;
         }
@@ -338,7 +355,7 @@ public class ToolStationMenu extends AbstractContainerMenu {
             if (this.menu.isMode(Mode.DISASSEMBLE)) {
                 return this.menu.disassemblyPending && this.hasItem();
             }
-            return this.menu.hasAssemblyResult();
+            return this.menu.hasCraftingResult();
         }
 
         @Override
@@ -366,7 +383,7 @@ public class ToolStationMenu extends AbstractContainerMenu {
             if (this.menu.isMode(Mode.DISASSEMBLE)) {
                 this.menu.cancelDisassemblyPreview();
             } else {
-                this.menu.takeAssemblyResult(player);
+                this.menu.takeCraftingResult(player);
             }
         }
     }
