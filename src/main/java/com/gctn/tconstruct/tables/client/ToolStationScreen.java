@@ -1,9 +1,9 @@
-package com.gctn.tconstruct.common.tables.client;
+package com.gctn.tconstruct.tables.client;
 
 import com.gctn.tconstruct.TinkersConstructNirvana;
-import com.gctn.tconstruct.common.tables.Mode;
-import com.gctn.tconstruct.common.tables.ToolStationMenu;
-import com.gctn.tconstruct.common.tables.ToolStationSlotPositions.SlotPosition;
+import com.gctn.tconstruct.tables.Mode;
+import com.gctn.tconstruct.tables.ToolStationMenu;
+import com.gctn.tconstruct.tables.ToolStationSlotPositions.SlotPosition;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;

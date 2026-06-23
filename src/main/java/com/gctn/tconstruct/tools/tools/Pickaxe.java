@@ -23,7 +23,7 @@ import static com.gctn.tconstruct.tools.toolcolors.PickaxeColor.PICKAXE_COLOR;
 
 public class Pickaxe extends TinkerTools {
     public static final DeferredItem<Item> PICKAXE = ITEMS.register("pickaxe/pickaxe",
-            () -> new Pickaxe());
+            Pickaxe::new);
 
     public Pickaxe() {}
 

@@ -1,6 +1,6 @@
-package com.gctn.tconstruct.common.tables;
+package com.gctn.tconstruct.tables;
 
-import com.gctn.tconstruct.common.tables.entity.TableEntityRegistries;
+import com.gctn.tconstruct.tables.entity.TableEntityRegistries;
 import net.neoforged.bus.api.IEventBus;
 
 public class TableRegistryBus {

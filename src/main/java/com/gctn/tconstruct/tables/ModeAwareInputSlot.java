@@ -1,4 +1,4 @@
-package com.gctn.tconstruct.common.tables;
+package com.gctn.tconstruct.tables;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
@@ -31,5 +31,11 @@ class ModeAwareInputSlot extends Slot {
 
         Item requiredItem = this.menu.getRequiredInputItem(this.slotMode, this.slotIndex);
         return requiredItem == null || stack.is(requiredItem);
+    }
+
+    @Override
+    public void setChanged() {
+        super.setChanged();
+        this.menu.inputsChanged();
     }
 }

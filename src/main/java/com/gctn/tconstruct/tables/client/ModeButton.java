@@ -1,6 +1,6 @@
-package com.gctn.tconstruct.common.tables.client;
+package com.gctn.tconstruct.tables.client;
 
-import com.gctn.tconstruct.common.tables.Mode;
+import com.gctn.tconstruct.tables.Mode;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;

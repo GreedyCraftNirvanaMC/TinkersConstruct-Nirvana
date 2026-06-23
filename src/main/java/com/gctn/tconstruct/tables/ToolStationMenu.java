@@ -1,9 +1,8 @@
-package com.gctn.tconstruct.common.tables;
+package com.gctn.tconstruct.tables;
 
-import com.gctn.tconstruct.common.tables.ToolStationSlotPositions.SlotPosition;
-import com.gctn.tconstruct.library.toolparts.Binding;
-import com.gctn.tconstruct.library.toolparts.PickaxeHead;
-import com.gctn.tconstruct.library.toolparts.ToolRod;
+import com.gctn.tconstruct.tables.ToolStationSlotPositions.SlotPosition;
+import com.gctn.tconstruct.tables.recipe.ToolAssemblyRecipe;
+import com.gctn.tconstruct.tables.recipe.ToolStationAssemblyRecipes;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -50,6 +49,7 @@ public class ToolStationMenu extends AbstractContainerMenu {
     private static final int SLOT_SPACING = 18;
 
     private final Container toolStation;
+    private final SimpleContainer resultContainer = new SimpleContainer(1);
     private Mode mode = Mode.DEFAULT;
 
     public ToolStationMenu(int containerId, Inventory playerInventory) {
@@ -63,10 +63,11 @@ public class ToolStationMenu extends AbstractContainerMenu {
 
         this.addToolStationSlots(container);
         this.addPlayerInventorySlots(playerInventory);
+        this.updateResult();
     }
 
     private void addToolStationSlots(Container container) {
-        this.addSlot(new Slot(container, RESULT_SLOT_INDEX, RESULT_SLOT_X, RESULT_SLOT_Y));
+        this.addSlot(new ToolStationResultSlot(this, this.resultContainer, 0, RESULT_SLOT_X, RESULT_SLOT_Y));
 
         for (Mode eachMode : Mode.values()) {
             for (int slotIndex = 0; slotIndex < INPUT_SLOT_COUNT; slotIndex++) {
@@ -153,9 +154,14 @@ public class ToolStationMenu extends AbstractContainerMenu {
         Mode mode = Mode.byButtonId(id);
         if (mode != null && this.isModeButtonVisible(mode)) {
             this.mode = mode;
+            this.updateResult();
             return true;
         }
         return false;
+    }
+
+    void inputsChanged() {
+        this.updateResult();
     }
 
     public boolean isMode(Mode mode) {
@@ -186,23 +192,64 @@ public class ToolStationMenu extends AbstractContainerMenu {
             return null;
         }
 
-        if (mode == Mode.DEFAULT || mode == Mode.DISASSEMBLE) {
-            return null;
+        ToolAssemblyRecipe recipe = ToolStationAssemblyRecipes.get(mode);
+        return recipe == null ? null : recipe.getRequiredItem(inputSlot);
+    }
+
+    private void updateResult() {
+        ItemStack result = this.createResult();
+        this.resultContainer.setItem(0, result);
+        this.broadcastChanges();
+    }
+
+    private ItemStack createResult() {
+        ToolAssemblyRecipe recipe = ToolStationAssemblyRecipes.get(this.mode);
+        if (recipe == null) {
+            return ItemStack.EMPTY;
         }
 
-        return switch (mode) {
-            case PICKAXE -> switch (inputSlot) {
-                case 0 -> ToolRod.TOOL_ROD.get();
-                case 1 -> PickaxeHead.PICKAXEHEAD.get();
-                case 2 -> Binding.BINDING.get();
-                default -> null;
-            };
-            case SHOVEL, AXE, DEBUG -> switch (inputSlot) {
-                case 0 -> ToolRod.TOOL_ROD.get();
-                case 2 -> Binding.BINDING.get();
-                default -> null;
-            };
-            default -> null;
-        };
+        return recipe.createResult(this.toolStation);
     }
+
+    private boolean hasAssemblyResult() {
+        return !this.createResult().isEmpty();
+    }
+
+    private void takeAssemblyResult(Player player) {
+        ToolAssemblyRecipe recipe = ToolStationAssemblyRecipes.get(this.mode);
+        if (recipe == null || !this.hasAssemblyResult()) {
+            this.updateResult();
+            return;
+        }
+
+        recipe.consumeInputs(this.toolStation);
+        this.toolStation.setChanged();
+        this.updateResult();
+    }
+
+    private static class ToolStationResultSlot extends Slot {
+        private final ToolStationMenu menu;
+
+        ToolStationResultSlot(ToolStationMenu menu, Container container, int slot, int x, int y) {
+            super(container, slot, x, y);
+            this.menu = menu;
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack stack) {
+            return false;
+        }
+
+        @Override
+        public boolean mayPickup(Player player) {
+            return this.menu.hasAssemblyResult();
+        }
+
+        @Override
+        public void onTake(Player player, ItemStack stack) {
+            super.onTake(player, stack);
+            this.menu.takeAssemblyResult(player);
+        }
+    }
+
 }

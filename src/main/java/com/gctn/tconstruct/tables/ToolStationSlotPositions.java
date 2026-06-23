@@ -1,4 +1,4 @@
-package com.gctn.tconstruct.common.tables;
+package com.gctn.tconstruct.tables;
 
 public final class ToolStationSlotPositions {
     public static final int INPUT_SLOT_COUNT = 6;

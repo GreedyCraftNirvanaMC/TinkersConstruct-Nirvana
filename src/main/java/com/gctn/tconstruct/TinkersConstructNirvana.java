@@ -1,6 +1,6 @@
 package com.gctn.tconstruct;
 
-import com.gctn.tconstruct.common.tables.TableRegistryBus;
+import com.gctn.tconstruct.tables.TableRegistryBus;
 import com.gctn.tconstruct.library.TinkerMaterials;
 import com.gctn.tconstruct.library.TinkerRegistry;
 import com.gctn.tconstruct.utils.BlockRegister;

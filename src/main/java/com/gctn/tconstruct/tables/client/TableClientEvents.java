@@ -1,7 +1,7 @@
-package com.gctn.tconstruct.common.tables.client;
+package com.gctn.tconstruct.tables.client;
 
 import com.gctn.tconstruct.TinkersConstructNirvana;
-import com.gctn.tconstruct.common.tables.TableMenuRegistries;
+import com.gctn.tconstruct.tables.TableMenuRegistries;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
