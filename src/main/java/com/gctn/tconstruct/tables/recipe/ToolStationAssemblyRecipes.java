@@ -3,7 +3,7 @@ package com.gctn.tconstruct.tables.recipe;
 import com.gctn.tconstruct.library.toolparts.Binding;
 import com.gctn.tconstruct.library.toolparts.PickaxeHead;
 import com.gctn.tconstruct.library.toolparts.ToolRod;
-import com.gctn.tconstruct.tables.Mode;
+import com.gctn.tconstruct.tables.data.Mode;
 import com.gctn.tconstruct.tools.tools.Pickaxe;
 
 import java.util.Map;

@@ -1,6 +1,9 @@
-package com.gctn.tconstruct.tables;
+package com.gctn.tconstruct.tables.menu;
 
-import com.gctn.tconstruct.tables.ToolStationSlotPositions.SlotPosition;
+import com.gctn.tconstruct.tables.data.Mode;
+import com.gctn.tconstruct.tables.data.ModeAwareInputSlot;
+import com.gctn.tconstruct.tables.data.ToolStationSlotPositions;
+import com.gctn.tconstruct.tables.data.ToolStationSlotPositions.SlotPosition;
 import com.gctn.tconstruct.tables.recipe.ToolAssemblyRecipe;
 import com.gctn.tconstruct.tables.recipe.ToolStationAssemblyRecipes;
 import net.minecraft.world.Container;
@@ -160,7 +163,7 @@ public class ToolStationMenu extends AbstractContainerMenu {
         return false;
     }
 
-    void inputsChanged() {
+    public void inputsChanged() {
         this.updateResult();
     }
 
@@ -187,7 +190,7 @@ public class ToolStationMenu extends AbstractContainerMenu {
         return requiredItem == null ? ItemStack.EMPTY : new ItemStack(requiredItem);
     }
 
-    Item getRequiredInputItem(Mode mode, int inputSlot) {
+    public Item getRequiredInputItem(Mode mode, int inputSlot) {
         if (!ToolStationSlotPositions.isInputSlotActive(mode, inputSlot)) {
             return null;
         }

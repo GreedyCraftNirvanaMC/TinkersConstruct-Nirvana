@@ -1,4 +1,4 @@
-package com.gctn.tconstruct.tables;
+package com.gctn.tconstruct.tables.data;
 
 public enum Mode {
     DEFAULT,

@@ -1,6 +1,6 @@
-package com.gctn.tconstruct.tables.entity;
+package com.gctn.tconstruct.tables.block.entity;
 
-import com.gctn.tconstruct.tables.ToolStationMenu;
+import com.gctn.tconstruct.tables.menu.ToolStationMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;

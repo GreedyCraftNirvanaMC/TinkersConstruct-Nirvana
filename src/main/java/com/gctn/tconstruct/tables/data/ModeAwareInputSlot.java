@@ -1,16 +1,17 @@
-package com.gctn.tconstruct.tables;
+package com.gctn.tconstruct.tables.data;
 
+import com.gctn.tconstruct.tables.menu.ToolStationMenu;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-class ModeAwareInputSlot extends Slot {
+public class ModeAwareInputSlot extends Slot {
     private final ToolStationMenu menu;
     private final Mode slotMode;
     private final int slotIndex;
 
-    ModeAwareInputSlot(ToolStationMenu menu, Container container, int slot, int x, int y, Mode slotMode, int slotIndex) {
+    public ModeAwareInputSlot(ToolStationMenu menu, Container container, int slot, int x, int y, Mode slotMode, int slotIndex) {
         super(container, slot, x, y);
         this.menu = menu;
         this.slotMode = slotMode;

@@ -1,4 +1,4 @@
-package com.gctn.tconstruct.tables;
+package com.gctn.tconstruct.tables.data;
 
 public final class ToolStationSlotPositions {
     public static final int INPUT_SLOT_COUNT = 6;
@@ -85,11 +85,11 @@ public final class ToolStationSlotPositions {
     }
 
     public record SlotPosition(int x, int y) {
-        int slotX() {
+        public int slotX() {
             return this.x + SLOT_ITEM_OFFSET;
         }
 
-        int slotY() {
+        public int slotY() {
             return this.y + SLOT_ITEM_OFFSET;
         }
     }

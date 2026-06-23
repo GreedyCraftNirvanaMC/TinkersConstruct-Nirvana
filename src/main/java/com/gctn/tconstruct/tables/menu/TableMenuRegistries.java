@@ -1,4 +1,4 @@
-package com.gctn.tconstruct.tables;
+package com.gctn.tconstruct.tables.menu;
 
 import com.gctn.tconstruct.TinkersConstructNirvana;
 import net.minecraft.core.registries.Registries;

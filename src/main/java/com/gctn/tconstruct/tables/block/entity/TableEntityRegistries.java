@@ -1,7 +1,7 @@
-package com.gctn.tconstruct.tables.entity;
+package com.gctn.tconstruct.tables.block.entity;
 
 import com.gctn.tconstruct.TinkersConstructNirvana;
-import com.gctn.tconstruct.tables.TableBlocks;
+import com.gctn.tconstruct.tables.block.TableBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;

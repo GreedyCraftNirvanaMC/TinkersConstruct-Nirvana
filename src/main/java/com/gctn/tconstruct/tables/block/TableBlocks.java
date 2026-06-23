@@ -1,4 +1,4 @@
-package com.gctn.tconstruct.tables;
+package com.gctn.tconstruct.tables.block;
 
 import com.gctn.tconstruct.utils.BlockRegister;
 

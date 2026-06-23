@@ -2,7 +2,7 @@ package com.gctn.tconstruct.utils;
 
 import com.gctn.tconstruct.TinkersConstructNirvana;
 import com.gctn.tconstruct.common.block.OreBlocks;
-import com.gctn.tconstruct.tables.TableBlocks;
+import com.gctn.tconstruct.tables.block.TableBlocks;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;

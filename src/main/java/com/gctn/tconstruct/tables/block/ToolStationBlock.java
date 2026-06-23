@@ -1,6 +1,6 @@
-package com.gctn.tconstruct.tables;
+package com.gctn.tconstruct.tables.block;
 
-import com.gctn.tconstruct.tables.entity.ToolStationBlockEntity;
+import com.gctn.tconstruct.tables.block.entity.ToolStationBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Containers;
