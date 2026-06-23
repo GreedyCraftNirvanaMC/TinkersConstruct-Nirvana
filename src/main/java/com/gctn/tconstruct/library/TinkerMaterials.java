@@ -4,7 +4,7 @@ import com.gctn.tconstruct.library.materials.Material;
 import com.gctn.tconstruct.library.stats.ExtraMaterialStats;
 import com.gctn.tconstruct.library.stats.HandleMaterialStats;
 import com.gctn.tconstruct.library.stats.HeadMaterialStats;
-import com.gctn.tconstruct.utils.HarvestLevels;
+import com.gctn.tconstruct.library.utils.HarvestLevels;
 import com.google.common.collect.Lists;
 
 import java.util.List;

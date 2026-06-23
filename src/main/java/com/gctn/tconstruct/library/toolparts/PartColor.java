@@ -2,7 +2,7 @@ package com.gctn.tconstruct.library.toolparts;
 
 import com.gctn.tconstruct.library.TinkerMaterials;
 import com.gctn.tconstruct.library.materials.Material;
-import com.gctn.tconstruct.utils.Tags;
+import com.gctn.tconstruct.library.utils.Tags;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;

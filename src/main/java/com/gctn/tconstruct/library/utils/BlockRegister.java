@@ -1,4 +1,4 @@
-package com.gctn.tconstruct.utils;
+package com.gctn.tconstruct.library.utils;
 
 import com.gctn.tconstruct.TinkersConstructNirvana;
 import com.gctn.tconstruct.common.block.OreBlocks;

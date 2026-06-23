@@ -1,4 +1,4 @@
-package com.gctn.tconstruct.library;
+package com.gctn.tconstruct.library.utils;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;

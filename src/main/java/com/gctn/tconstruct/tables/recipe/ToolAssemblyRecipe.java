@@ -2,7 +2,7 @@ package com.gctn.tconstruct.tables.recipe;
 
 import com.gctn.tconstruct.library.TinkerMaterials;
 import com.gctn.tconstruct.library.materials.Material;
-import com.gctn.tconstruct.utils.Tags;
+import com.gctn.tconstruct.library.utils.Tags;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;

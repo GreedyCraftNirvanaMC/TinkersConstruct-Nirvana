@@ -1,4 +1,4 @@
-package com.gctn.tconstruct.utils;
+package com.gctn.tconstruct.library.utils;
 
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;

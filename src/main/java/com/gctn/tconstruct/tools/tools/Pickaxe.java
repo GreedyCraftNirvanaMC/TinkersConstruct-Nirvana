@@ -1,17 +1,24 @@
 package com.gctn.tconstruct.tools.tools;
 
 import com.gctn.tconstruct.library.materials.Material;
+import com.gctn.tconstruct.library.stats.ExtraMaterialStats;
+import com.gctn.tconstruct.library.stats.HandleMaterialStats;
 import com.gctn.tconstruct.library.stats.HeadMaterialStats;
+import com.gctn.tconstruct.library.utils.HarvestLevels;
 import com.gctn.tconstruct.tools.TinkerTools;
-import com.gctn.tconstruct.utils.HarvestLevels;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.Tool;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -20,33 +27,48 @@ import java.util.List;
 
 import static com.gctn.tconstruct.tools.toolcolors.PickaxeColor.PICKAXE_COLOR;
 
-
 public class Pickaxe extends TinkerTools {
     public static final DeferredItem<Item> PICKAXE = ITEMS.register("pickaxe/pickaxe",
             Pickaxe::new);
 
     public Pickaxe() {}
 
-    // 材料顺序 手柄-镐头-绑定结
-    public static ItemStack getColoredPickaxe(Material matHandle, Material matHead, Material matBinding) {
+    // Material order: handle, head, binding.
+    public static ItemStack initPickaxe(Material matHandle, Material matHead, Material matBinding) {
         ItemStack stack = new ItemStack(PICKAXE.get());
         CompoundTag tag = new CompoundTag();
         tag.putString("Handle", matHandle.identifier);
         tag.putString("Head", matHead.identifier);
         tag.putString("Binding", matBinding.identifier);
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+
         HeadMaterialStats headStats = (HeadMaterialStats) matHead.getStats().get("Head");
         if (headStats != null) {
             stack.set(DataComponents.TOOL, getPickaxeInfo(headStats));
+            stack.set(DataComponents.MAX_DAMAGE, getPickaxeDurability(matHandle, matHead, matBinding));
+            stack.set(DataComponents.DAMAGE, 0);
         }
+
         stack.set(DataComponents.ITEM_NAME, Component.literal(
                         Component.translatable(
-                                "material."+matHead.identifier+".name").getString()
-                                +" "
-                                +Component.translatable("item.tconstruct.pickaxe.name").getString()
+                                "material." + matHead.identifier + ".name").getString()
+                                + " "
+                                + Component.translatable("item.tconstruct.pickaxe.name").getString()
                 )
         );
         return stack;
+    }
+
+    private static int getPickaxeDurability(Material matHandle, Material matHead, Material matBinding) {
+        HandleMaterialStats handleStats = (HandleMaterialStats) matHandle.getStats().get("Handle");
+        ExtraMaterialStats bindingStats = (ExtraMaterialStats) matBinding.getStats().get("Extra");
+        HeadMaterialStats headStats = (HeadMaterialStats) matHead.getStats().get("Head");
+
+        float handleModifier = handleStats != null ? handleStats.modifer : 1.0F;
+        int handleDurability = handleStats != null ? handleStats.durability : 0;
+        int bindingDurability = bindingStats != null ? bindingStats.durability : 0;
+
+        return Math.max(1, Math.round((headStats.durability + bindingDurability) * handleModifier) + handleDurability);
     }
 
     private static Tool getPickaxeInfo(HeadMaterialStats headStats) {
@@ -54,6 +76,19 @@ public class Pickaxe extends TinkerTools {
                 Tool.Rule.deniesDrops(HarvestLevels.getIncorrectBlocksForDrops(headStats.harvestLevel)),
                 Tool.Rule.minesAndDrops(BlockTags.MINEABLE_WITH_PICKAXE, headStats.miningspeed)
         ), 1.0F, 1);
+    }
+
+    @Override
+    public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity miningEntity) {
+        if (!level.isClientSide && state.getDestroySpeed(level, pos) != 0.0F) {
+            stack.hurtAndBreak(1, miningEntity, EquipmentSlot.MAINHAND);
+        }
+        return true;
+    }
+
+    @Override
+    public void postHurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+        stack.hurtAndBreak(2, attacker, EquipmentSlot.MAINHAND);
     }
 
     private static void registerPickaxeColors(RegisterColorHandlersEvent.Item event) {

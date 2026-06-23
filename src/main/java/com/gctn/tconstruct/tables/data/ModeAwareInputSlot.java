@@ -30,8 +30,20 @@ public class ModeAwareInputSlot extends Slot {
             return false;
         }
 
+        if (this.slotMode == Mode.DISASSEMBLE) {
+            return false;
+        }
+
         Item requiredItem = this.menu.getRequiredInputItem(this.slotMode, this.slotIndex);
         return requiredItem == null || stack.is(requiredItem);
+    }
+
+    @Override
+    public void onTake(net.minecraft.world.entity.player.Player player, ItemStack stack) {
+        super.onTake(player, stack);
+        if (this.slotMode == Mode.DISASSEMBLE) {
+            this.menu.disassemblyPartTaken();
+        }
     }
 
     @Override

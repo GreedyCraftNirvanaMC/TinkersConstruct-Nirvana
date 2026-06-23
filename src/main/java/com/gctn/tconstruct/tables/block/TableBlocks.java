@@ -1,6 +1,6 @@
 package com.gctn.tconstruct.tables.block;
 
-import com.gctn.tconstruct.utils.BlockRegister;
+import com.gctn.tconstruct.library.utils.BlockRegister;
 
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.registries.DeferredBlock;

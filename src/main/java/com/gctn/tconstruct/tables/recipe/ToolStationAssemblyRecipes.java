@@ -16,7 +16,7 @@ public final class ToolStationAssemblyRecipes {
                             new ToolAssemblyRecipe.PartRequirement(1, PickaxeHead.PICKAXEHEAD, "Head"),
                             new ToolAssemblyRecipe.PartRequirement(2, Binding.BINDING, "Extra")
                     },
-                    materials -> Pickaxe.getColoredPickaxe(materials[0], materials[1], materials[2]))
+                    materials -> Pickaxe.initPickaxe(materials[0], materials[1], materials[2]))
     );
 
     public static ToolAssemblyRecipe get(Mode mode) {

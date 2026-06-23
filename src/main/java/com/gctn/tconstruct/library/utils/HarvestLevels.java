@@ -1,7 +1,6 @@
-package com.gctn.tconstruct.utils;
+package com.gctn.tconstruct.library.utils;
 
 import com.gctn.tconstruct.library.TinkerMaterials;
-import com.gctn.tconstruct.library.Util;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BlockTags;

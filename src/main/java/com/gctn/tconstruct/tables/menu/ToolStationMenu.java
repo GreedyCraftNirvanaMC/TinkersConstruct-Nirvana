@@ -6,6 +6,8 @@ import com.gctn.tconstruct.tables.data.ToolStationSlotPositions;
 import com.gctn.tconstruct.tables.data.ToolStationSlotPositions.SlotPosition;
 import com.gctn.tconstruct.tables.recipe.ToolAssemblyRecipe;
 import com.gctn.tconstruct.tables.recipe.ToolStationAssemblyRecipes;
+import com.gctn.tconstruct.tables.recipe.ToolStationDisassemblyRecipes;
+import com.gctn.tconstruct.tables.recipe.ToolStationDisassemblyRecipes.PartList;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -54,6 +56,7 @@ public class ToolStationMenu extends AbstractContainerMenu {
     private final Container toolStation;
     private final SimpleContainer resultContainer = new SimpleContainer(1);
     private Mode mode = Mode.DEFAULT;
+    private boolean disassemblyPending;
 
     public ToolStationMenu(int containerId, Inventory playerInventory) {
         this(containerId, playerInventory, new SimpleContainer(CONTAINER_SIZE));
@@ -112,7 +115,10 @@ public class ToolStationMenu extends AbstractContainerMenu {
                 }
                 quickMovedSlot.onQuickCraft(rawStack, quickMovedStack);
             } else if (quickMovedSlotIndex >= PLAYER_INVENTORY_START && quickMovedSlotIndex < HOTBAR_END) {
-                if (!this.moveItemStackTo(rawStack, INPUT_MENU_SLOT_START, TOOL_STATION_SLOT_COUNT, false)) {
+                if (this.mode == Mode.DISASSEMBLE
+                        && this.moveItemStackTo(rawStack, RESULT_MENU_SLOT, RESULT_MENU_SLOT + 1, false)) {
+                    // Moved a full tool into the disassembly source slot.
+                } else if (!this.moveItemStackTo(rawStack, INPUT_MENU_SLOT_START, TOOL_STATION_SLOT_COUNT, false)) {
                     if (quickMovedSlotIndex < PLAYER_INVENTORY_END) {
                         if (!this.moveItemStackTo(rawStack, HOTBAR_START, HOTBAR_END, false)) {
                             return ItemStack.EMPTY;
@@ -143,6 +149,7 @@ public class ToolStationMenu extends AbstractContainerMenu {
 
     @Override
     public void removed(Player player) {
+        this.cancelDisassemblyAndReturnTool(player);
         super.removed(player);
         this.toolStation.stopOpen(player);
     }
@@ -156,6 +163,9 @@ public class ToolStationMenu extends AbstractContainerMenu {
     public boolean clickMenuButton(Player player, int id) {
         Mode mode = Mode.byButtonId(id);
         if (mode != null && this.isModeButtonVisible(mode)) {
+            if (this.mode == Mode.DISASSEMBLE && mode != Mode.DISASSEMBLE) {
+                this.cancelDisassemblyAndReturnTool(player);
+            }
             this.mode = mode;
             this.updateResult();
             return true;
@@ -199,7 +209,52 @@ public class ToolStationMenu extends AbstractContainerMenu {
         return recipe == null ? null : recipe.getRequiredItem(inputSlot);
     }
 
+    public boolean canStartDisassembly(ItemStack stack) {
+        return this.mode == Mode.DISASSEMBLE
+                && !this.disassemblyPending
+                && this.resultContainer.getItem(0).isEmpty()
+                && this.areInputSlotsEmpty()
+                && ToolStationDisassemblyRecipes.canDisassemble(stack);
+    }
+
+    public void startDisassembly(ItemStack sourceTool) {
+        PartList parts = ToolStationDisassemblyRecipes.createParts(sourceTool);
+        if (parts.isEmpty() || !this.areInputSlotsEmpty()) {
+            this.resultContainer.setItem(0, ItemStack.EMPTY);
+            this.broadcastChanges();
+            return;
+        }
+
+        this.disassemblyPending = true;
+        ItemStack[] partStacks = parts.parts();
+        for (int inputSlot = 0; inputSlot < partStacks.length; inputSlot++) {
+            this.toolStation.setItem(inputSlot, partStacks[inputSlot].copy());
+        }
+        this.toolStation.setChanged();
+        this.broadcastChanges();
+    }
+
+    public void disassemblyPartTaken() {
+        if (!this.disassemblyPending) {
+            return;
+        }
+
+        this.disassemblyPending = false;
+        this.resultContainer.setItem(0, ItemStack.EMPTY);
+        this.resultContainer.setChanged();
+        this.toolStation.setChanged();
+        this.broadcastChanges();
+    }
+
     private void updateResult() {
+        if (this.mode == Mode.DISASSEMBLE) {
+            if (!this.disassemblyPending && !this.resultContainer.getItem(0).isEmpty()) {
+                this.resultContainer.setItem(0, ItemStack.EMPTY);
+            }
+            this.broadcastChanges();
+            return;
+        }
+
         ItemStack result = this.createResult();
         this.resultContainer.setItem(0, result);
         this.broadcastChanges();
@@ -230,6 +285,41 @@ public class ToolStationMenu extends AbstractContainerMenu {
         this.updateResult();
     }
 
+    private boolean areInputSlotsEmpty() {
+        for (int inputSlot = 0; inputSlot < INPUT_SLOT_COUNT; inputSlot++) {
+            if (!this.toolStation.getItem(inputSlot).isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void cancelDisassemblyPreview() {
+        if (!this.disassemblyPending) {
+            return;
+        }
+
+        this.disassemblyPending = false;
+        for (int inputSlot = 0; inputSlot < INPUT_SLOT_COUNT; inputSlot++) {
+            this.toolStation.setItem(inputSlot, ItemStack.EMPTY);
+        }
+        this.toolStation.setChanged();
+        this.broadcastChanges();
+    }
+
+    private void cancelDisassemblyAndReturnTool(Player player) {
+        if (!this.disassemblyPending) {
+            return;
+        }
+
+        ItemStack sourceTool = this.resultContainer.getItem(0);
+        this.resultContainer.setItem(0, ItemStack.EMPTY);
+        this.cancelDisassemblyPreview();
+        if (!sourceTool.isEmpty()) {
+            player.getInventory().placeItemBackInInventory(sourceTool);
+        }
+    }
+
     private static class ToolStationResultSlot extends Slot {
         private final ToolStationMenu menu;
 
@@ -240,18 +330,44 @@ public class ToolStationMenu extends AbstractContainerMenu {
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            return false;
+            return this.menu.canStartDisassembly(stack);
         }
 
         @Override
         public boolean mayPickup(Player player) {
+            if (this.menu.isMode(Mode.DISASSEMBLE)) {
+                return this.menu.disassemblyPending && this.hasItem();
+            }
             return this.menu.hasAssemblyResult();
+        }
+
+        @Override
+        public int getMaxStackSize() {
+            return 1;
+        }
+
+        @Override
+        public void setByPlayer(ItemStack newStack, ItemStack oldStack) {
+            super.setByPlayer(newStack, oldStack);
+            if (!this.menu.isMode(Mode.DISASSEMBLE)) {
+                return;
+            }
+
+            if (newStack.isEmpty()) {
+                this.menu.cancelDisassemblyPreview();
+            } else if (!this.menu.disassemblyPending) {
+                this.menu.startDisassembly(newStack);
+            }
         }
 
         @Override
         public void onTake(Player player, ItemStack stack) {
             super.onTake(player, stack);
-            this.menu.takeAssemblyResult(player);
+            if (this.menu.isMode(Mode.DISASSEMBLE)) {
+                this.menu.cancelDisassemblyPreview();
+            } else {
+                this.menu.takeAssemblyResult(player);
+            }
         }
     }
 

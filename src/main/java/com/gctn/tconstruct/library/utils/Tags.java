@@ -1,4 +1,4 @@
-package com.gctn.tconstruct.utils;
+package com.gctn.tconstruct.library.utils;
 
 /**
  * Holds all the NBT Tag keys used by the standard tinkers stuff.
