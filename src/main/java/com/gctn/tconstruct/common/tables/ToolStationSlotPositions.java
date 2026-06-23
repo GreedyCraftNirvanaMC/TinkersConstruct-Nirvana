@@ -1,7 +1,5 @@
 package com.gctn.tconstruct.common.tables;
 
-import com.gctn.tconstruct.common.tables.ToolStationMenu.Mode;
-
 public final class ToolStationSlotPositions {
     public static final int INPUT_SLOT_COUNT = 6;
 
@@ -43,6 +41,15 @@ public final class ToolStationSlotPositions {
             null
     };
 
+    private static final SlotPosition[] DEBUG_INPUT_SLOTS = {
+            new SlotPosition(14, 59),
+            new SlotPosition(32, 41),
+            new SlotPosition(50, 23),
+            new SlotPosition(50, 59),
+            null,
+            null
+    };
+
     private ToolStationSlotPositions() {
     }
 
@@ -50,19 +57,21 @@ public final class ToolStationSlotPositions {
         return getInputSlotPosition(mode, inputSlot) != null;
     }
 
+    public static int getActiveInputSlotCount(Mode mode) {
+        int activeSlots = 0;
+        for (SlotPosition position : getInputSlots(mode)) {
+            if (position != null) {
+                activeSlots++;
+            }
+        }
+        return activeSlots;
+    }
+
     public static SlotPosition getInputSlotPosition(Mode mode, int inputSlot) {
-        validateInputSlot(inputSlot);
+        if (inputSlot < 0 || inputSlot >= INPUT_SLOT_COUNT) {
+            return null;
+        }
         return getInputSlots(mode)[inputSlot];
-    }
-
-    public static SlotPosition getInputSlotPositionOrFallback(Mode mode, int inputSlot) {
-        SlotPosition position = getInputSlotPosition(mode, inputSlot);
-        return position != null ? position : getFallbackInputSlotPosition(inputSlot);
-    }
-
-    public static SlotPosition getFallbackInputSlotPosition(int inputSlot) {
-        validateInputSlot(inputSlot);
-        return ALL_INPUT_SLOTS[inputSlot];
     }
 
     private static SlotPosition[] getInputSlots(Mode mode) {
@@ -71,13 +80,8 @@ public final class ToolStationSlotPositions {
             case PICKAXE -> PICKAXE_INPUT_SLOTS;
             case SHOVEL -> SHOVEL_INPUT_SLOTS;
             case AXE -> AXE_INPUT_SLOTS;
+            case DEBUG -> DEBUG_INPUT_SLOTS;
         };
-    }
-
-    private static void validateInputSlot(int inputSlot) {
-        if (inputSlot < 0 || inputSlot >= INPUT_SLOT_COUNT) {
-            throw new IndexOutOfBoundsException("Invalid tool station input slot: " + inputSlot);
-        }
     }
 
     public record SlotPosition(int x, int y) {

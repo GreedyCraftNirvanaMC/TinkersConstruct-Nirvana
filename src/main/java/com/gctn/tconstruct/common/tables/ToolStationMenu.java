@@ -1,12 +1,16 @@
 package com.gctn.tconstruct.common.tables;
 
 import com.gctn.tconstruct.common.tables.ToolStationSlotPositions.SlotPosition;
+import com.gctn.tconstruct.library.toolparts.Binding;
+import com.gctn.tconstruct.library.toolparts.PickaxeHead;
+import com.gctn.tconstruct.library.toolparts.ToolRod;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 public class ToolStationMenu extends AbstractContainerMenu {
@@ -22,10 +26,14 @@ public class ToolStationMenu extends AbstractContainerMenu {
     public static final int PICKAXE_MODE_BUTTON = Mode.PICKAXE.getButtonId();
     public static final int SHOVEL_MODE_BUTTON = Mode.SHOVEL.getButtonId();
     public static final int AXE_MODE_BUTTON = Mode.AXE.getButtonId();
+    public static final int DEBUG_MODE_BUTTON = Mode.DEBUG.getButtonId();
 
     private static final int TOOL_STATION_SLOT_COUNT = 1 + Mode.values().length * INPUT_SLOT_COUNT;
     private static final int RESULT_MENU_SLOT = 0;
     private static final int INPUT_MENU_SLOT_START = 1;
+    private static final int MAX_VISIBLE_SPECIAL_MODE_INPUTS = 3;
+    private static final int HIDDEN_SLOT_X = -9999;
+    private static final int HIDDEN_SLOT_Y = -9999;
 
     private static final int PLAYER_INVENTORY_COLUMNS = 9;
     private static final int PLAYER_INVENTORY_ROWS = 3;
@@ -59,10 +67,13 @@ public class ToolStationMenu extends AbstractContainerMenu {
 
     private void addToolStationSlots(Container container) {
         this.addSlot(new Slot(container, RESULT_SLOT_INDEX, RESULT_SLOT_X, RESULT_SLOT_Y));
-        for (Mode slotMode : Mode.values()) {
-            for (int inputSlot = 0; inputSlot < INPUT_SLOT_COUNT; inputSlot++) {
-                SlotPosition position = ToolStationSlotPositions.getInputSlotPositionOrFallback(slotMode, inputSlot);
-                this.addSlot(new ModeAwareInputSlot(container, inputSlot, position.slotX(), position.slotY(), slotMode, inputSlot));
+
+        for (Mode eachMode : Mode.values()) {
+            for (int slotIndex = 0; slotIndex < INPUT_SLOT_COUNT; slotIndex++) {
+                SlotPosition position = ToolStationSlotPositions.getInputSlotPosition(eachMode, slotIndex);
+                int x = position == null ? HIDDEN_SLOT_X : position.slotX();
+                int y = position == null ? HIDDEN_SLOT_Y : position.slotY();
+                this.addSlot(new ModeAwareInputSlot(this, container, slotIndex, x, y, eachMode, slotIndex));
             }
         }
     }
@@ -140,7 +151,7 @@ public class ToolStationMenu extends AbstractContainerMenu {
     @Override
     public boolean clickMenuButton(Player player, int id) {
         Mode mode = Mode.byButtonId(id);
-        if (mode != null) {
+        if (mode != null && this.isModeButtonVisible(mode)) {
             this.mode = mode;
             return true;
         }
@@ -151,8 +162,10 @@ public class ToolStationMenu extends AbstractContainerMenu {
         return this.mode == mode;
     }
 
-    public boolean hasToolSlotItem() {
-        return !this.toolStation.getItem(RESULT_SLOT_INDEX).isEmpty();
+    public boolean isModeButtonVisible(Mode mode) {
+        return mode == Mode.DEFAULT
+                || mode == Mode.DISASSEMBLE
+                || ToolStationSlotPositions.getActiveInputSlotCount(mode) <= MAX_VISIBLE_SPECIAL_MODE_INPUTS;
     }
 
     public boolean isInputSlotActive(int inputSlot) {
@@ -163,46 +176,33 @@ public class ToolStationMenu extends AbstractContainerMenu {
         return ToolStationSlotPositions.getInputSlotPosition(this.mode, inputSlot);
     }
 
-    private class ModeAwareInputSlot extends Slot {
-        private final Mode slotMode;
-        private final int inputSlot;
-
-        ModeAwareInputSlot(Container container, int slot, int x, int y, Mode slotMode, int inputSlot) {
-            super(container, slot, x, y);
-            this.slotMode = slotMode;
-            this.inputSlot = inputSlot;
-        }
-
-        @Override
-        public boolean isActive() {
-            return ToolStationMenu.this.mode == this.slotMode
-                    && ToolStationMenu.this.isInputSlotActive(this.inputSlot);
-        }
-
-        @Override
-        public boolean mayPlace(ItemStack stack) {
-            return this.isActive() && super.mayPlace(stack);
-        }
+    public ItemStack getInputSlotIcon(int inputSlot) {
+        Item requiredItem = this.getRequiredInputItem(this.mode, inputSlot);
+        return requiredItem == null ? ItemStack.EMPTY : new ItemStack(requiredItem);
     }
 
-    public enum Mode {
-        DEFAULT,
-        DISASSEMBLE,
-        PICKAXE,
-        SHOVEL,
-        AXE;
-
-        public int getButtonId() {
-            return this.ordinal();
+    Item getRequiredInputItem(Mode mode, int inputSlot) {
+        if (!ToolStationSlotPositions.isInputSlotActive(mode, inputSlot)) {
+            return null;
         }
 
-        public static Mode byButtonId(int id) {
-            Mode[] modes = values();
-            if (id < 0 || id >= modes.length) {
-                return null;
-            }
-            return modes[id];
+        if (mode == Mode.DEFAULT || mode == Mode.DISASSEMBLE) {
+            return null;
         }
+
+        return switch (mode) {
+            case PICKAXE -> switch (inputSlot) {
+                case 0 -> ToolRod.TOOL_ROD.get();
+                case 1 -> PickaxeHead.PICKAXEHEAD.get();
+                case 2 -> Binding.BINDING.get();
+                default -> null;
+            };
+            case SHOVEL, AXE, DEBUG -> switch (inputSlot) {
+                case 0 -> ToolRod.TOOL_ROD.get();
+                case 2 -> Binding.BINDING.get();
+                default -> null;
+            };
+            default -> null;
+        };
     }
-
 }

@@ -1,12 +1,10 @@
 package com.gctn.tconstruct.common.tables.client;
 
 import com.gctn.tconstruct.TinkersConstructNirvana;
+import com.gctn.tconstruct.common.tables.Mode;
 import com.gctn.tconstruct.common.tables.ToolStationMenu;
-import com.gctn.tconstruct.common.tables.ToolStationMenu.Mode;
 import com.gctn.tconstruct.common.tables.ToolStationSlotPositions.SlotPosition;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -18,7 +16,6 @@ import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 @OnlyIn(Dist.CLIENT)
 public class ToolStationScreen extends AbstractContainerScreen<ToolStationMenu> {
@@ -29,11 +26,8 @@ public class ToolStationScreen extends AbstractContainerScreen<ToolStationMenu> 
 
     private static final int MODE_BUTTON_X = -108;
     private static final int MODE_BUTTON_Y = 10;
-    private static final int MODE_BUTTON_SPACING= 22;
-    private static final int MODE_BUTTON_SIZE = 18;
-    private static final int MODE_BUTTON_TEXTURE_X = 180;
-    private static final int ACTIVE_MODE_BUTTON_TEXTURE_X = 144;
-    private static final int MODE_BUTTON_TEXTURE_Y = 180;
+    private static final int MODE_BUTTON_SPACING = 22;
+    private static final float INPUT_SLOT_ICON_ALPHA = 0.35F;
 
     private final List<ModeButton> modeButtons = new ArrayList<>();
 
@@ -56,6 +50,7 @@ public class ToolStationScreen extends AbstractContainerScreen<ToolStationMenu> 
         this.addModeButton(Mode.PICKAXE, new ItemStack(Items.WOODEN_PICKAXE), 2);
         this.addModeButton(Mode.SHOVEL, new ItemStack(Items.WOODEN_SHOVEL), 3);
         this.addModeButton(Mode.AXE, new ItemStack(Items.WOODEN_AXE), 4);
+        this.addModeButton(Mode.DEBUG, new ItemStack(Items.DEBUG_STICK), 5);
         this.updateModeButtons();
     }
 
@@ -76,6 +71,7 @@ public class ToolStationScreen extends AbstractContainerScreen<ToolStationMenu> 
             if (this.menu.isInputSlotActive(inputSlot)) {
                 SlotPosition position = this.menu.getInputSlotPosition(inputSlot);
                 renderItemSlot(guiGraphics, position.x(), position.y());
+                renderInputSlotIcon(guiGraphics, inputSlot, position.x(), position.y());
             }
         }
         if (!this.menu.isMode(Mode.DISASSEMBLE)) {
@@ -90,17 +86,31 @@ public class ToolStationScreen extends AbstractContainerScreen<ToolStationMenu> 
         guiGraphics.blit(ICON_TEXTURE, this.leftPos + x, this.topPos + y, 144, 216, 18, 18);
     }
 
+    private void renderInputSlotIcon(GuiGraphics guiGraphics, int inputSlot, int x, int y) {
+        ItemStack icon = this.menu.getInputSlotIcon(inputSlot);
+        if (icon.isEmpty()) {
+            return;
+        }
+
+        guiGraphics.setColor(1.0F, 1.0F, 1.0F, INPUT_SLOT_ICON_ALPHA);
+        guiGraphics.renderItem(icon, this.leftPos + x + 1, this.topPos + y + 1);
+        guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+    }
+
     private void addModeButton(Mode mode, ItemStack icon, int index) {
         int x = this.leftPos + MODE_BUTTON_X + index % 5 * MODE_BUTTON_SPACING;
         int y = this.topPos + MODE_BUTTON_Y + (index / 5) * MODE_BUTTON_SPACING;
-        ModeButton button = new ModeButton(x, y, mode, icon);
+        ModeButton button = new ModeButton(x, y, mode, icon, BACKGROUND_TEXTURE, ICON_TEXTURE,
+                this.menu::isMode, selectedMode -> this.setMode(selectedMode.getButtonId()));
         this.modeButtons.add(this.addRenderableWidget(button));
     }
 
     private void addModeButton(Mode mode, ResourceLocation resourceLocation, int uOffset, int vOffset, int uWidth, int vHeight, int index) {
         int x = this.leftPos + MODE_BUTTON_X + index % 5 * MODE_BUTTON_SPACING;
         int y = this.topPos + MODE_BUTTON_Y + (index / 5) * MODE_BUTTON_SPACING;
-        ModeButton button = new ModeButton(x, y, mode, resourceLocation, uOffset, vOffset, uWidth, vHeight);
+        ModeButton button = new ModeButton(x, y, mode, resourceLocation, uOffset, vOffset, uWidth, vHeight,
+                BACKGROUND_TEXTURE, ICON_TEXTURE, this.menu::isMode,
+                selectedMode -> this.setMode(selectedMode.getButtonId()));
         this.modeButtons.add(this.addRenderableWidget(button));
     }
 
@@ -115,68 +125,8 @@ public class ToolStationScreen extends AbstractContainerScreen<ToolStationMenu> 
 
     private void updateModeButtons() {
         for (ModeButton button : this.modeButtons) {
-            button.active = !this.menu.isMode(button.mode);
-        }
-    }
-
-    private class ModeButton extends AbstractButton {
-        private final Mode mode;
-        private final ItemStack icon;
-        private final ResourceLocation iconTexture;
-        private final int iconU;
-        private final int iconV;
-        private final int iconWidth;
-        private final int iconHeight;
-
-        ModeButton(int x, int y, Mode mode, ItemStack icon) {
-            super(x, y, MODE_BUTTON_SIZE, MODE_BUTTON_SIZE, Component.translatable(
-                    "container.tconstruct.toolstation.mode." + mode.name().toLowerCase(Locale.ROOT)));
-            this.mode = mode;
-            this.icon = icon;
-            this.iconTexture = null;
-            this.iconU = 0;
-            this.iconV = 0;
-            this.iconWidth = 0;
-            this.iconHeight = 0;
-        }
-
-        ModeButton(int x, int y, Mode mode, ResourceLocation iconTexture, int iconU, int iconV, int iconWidth, int iconHeight) {
-            super(x, y, MODE_BUTTON_SIZE, MODE_BUTTON_SIZE, Component.translatable(
-                    "container.tconstruct.toolstation.mode." + mode.name().toLowerCase(Locale.ROOT)));
-            this.mode = mode;
-            this.icon = ItemStack.EMPTY;
-            this.iconTexture = iconTexture;
-            this.iconU = iconU;
-            this.iconV = iconV;
-            this.iconWidth = iconWidth;
-            this.iconHeight = iconHeight;
-        }
-
-        @Override
-        public void onPress() {
-            ToolStationScreen.this.setMode(this.mode.getButtonId());
-        }
-
-        @Override
-        protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-            int textureX = ToolStationScreen.this.menu.isMode(this.mode)
-                    ? ACTIVE_MODE_BUTTON_TEXTURE_X
-                    : MODE_BUTTON_TEXTURE_X;
-            guiGraphics.blit(ICON_TEXTURE, this.getX(), this.getY(),
-                    textureX, MODE_BUTTON_TEXTURE_Y, MODE_BUTTON_SIZE, MODE_BUTTON_SIZE);
-            guiGraphics.blit(BACKGROUND_TEXTURE, this.getX() + 2, this.getY() - 4, 20, 174, 14, 4);
-            if (this.iconTexture != null) {
-                int iconX = this.getX() + (MODE_BUTTON_SIZE - this.iconWidth) / 2;
-                int iconY = this.getY() + (MODE_BUTTON_SIZE - this.iconHeight) / 2;
-                guiGraphics.blit(this.iconTexture, iconX, iconY, this.iconU, this.iconV, this.iconWidth, this.iconHeight);
-            } else {
-                guiGraphics.renderItem(this.icon, this.getX() + 1, this.getY() + 1);
-            }
-        }
-
-        @Override
-        protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-            this.defaultButtonNarrationText(narrationElementOutput);
+            button.visible = this.menu.isModeButtonVisible(button.getMode());
+            button.active = button.visible && !this.menu.isMode(button.getMode());
         }
     }
 }
