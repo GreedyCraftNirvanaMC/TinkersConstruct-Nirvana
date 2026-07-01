@@ -63,6 +63,9 @@ public class TinkerRegistry {
                         for (DeferredBlock<?> block : BlockRegister.entries()) {
                             output.accept(block.get());
                         }
+                        for (DeferredBlock<?> block : BlockRegister.simpleEntries()) {
+                            output.accept(block.get());
+                        }
                     }))
                     .build());
 
