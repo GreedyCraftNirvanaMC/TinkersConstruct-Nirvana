@@ -13,4 +13,8 @@ public class HeadMaterialStats extends AbstractMaterialStats {
         this.attack= attack;
         this.miningspeed = miningspeed;
     }
+
+    public int getDurability() {
+        return durability;
+    }
 }

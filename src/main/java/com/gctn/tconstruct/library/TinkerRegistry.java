@@ -34,7 +34,7 @@ public class TinkerRegistry {
                     .title(Component.translatable("tinker_tool_parts_tab"))
                     .displayItems(((itemDisplayParameters, output) -> {
                         Collection<ItemStack> tempStacks = new ArrayList<>();
-                        ToolRod.getAllColoredParts(tempStacks);
+                        ToolRod.getAllParts(tempStacks);
                         Binding.getAllColoredParts(tempStacks);
                         PickaxeHead.getAllColoredParts(tempStacks);
                         int i = 0;

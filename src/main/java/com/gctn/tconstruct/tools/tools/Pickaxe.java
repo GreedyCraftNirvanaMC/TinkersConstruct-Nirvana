@@ -1,5 +1,6 @@
 package com.gctn.tconstruct.tools.tools;
 
+import com.gctn.tconstruct.library.TinkerMaterials;
 import com.gctn.tconstruct.library.materials.Material;
 import com.gctn.tconstruct.library.stats.ExtraMaterialStats;
 import com.gctn.tconstruct.library.stats.HandleMaterialStats;
@@ -23,6 +24,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.registries.DeferredItem;
 
+import java.util.Collection;
 import java.util.List;
 
 import static com.gctn.tconstruct.tools.toolcolors.PickaxeColor.PICKAXE_COLOR;
@@ -89,6 +91,33 @@ public class Pickaxe extends TinkerTools {
     @Override
     public void postHurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         stack.hurtAndBreak(2, attacker, EquipmentSlot.MAINHAND);
+    }
+
+    @Override
+    public Collection<RepairMaterial> getRepairMaterials(ItemStack stack) {
+        Material head = getMaterial(stack, "Head", "Head");
+        if (head == null) {
+            return List.of();
+        }
+
+        return List.of(new RepairMaterial(head, 1.0F, ((HeadMaterialStats) head.getStats().get("Head")).getDurability()));
+    }
+
+    private static Material getMaterial(ItemStack stack, String materialKey, String requiredStat) {
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData == null) {
+            return null;
+        }
+
+        String materialId = customData.copyTag().getString(materialKey);
+        for (Material material : TinkerMaterials.materials) {
+            if (material.identifier.equals(materialId)
+                    && material.getStats() != null
+                    && material.getStats().containsKey(requiredStat)) {
+                return material;
+            }
+        }
+        return null;
     }
 
     private static void registerPickaxeColors(RegisterColorHandlersEvent.Item event) {

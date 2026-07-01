@@ -24,11 +24,10 @@ public final class ToolStationDisassemblyRecipes {
             return PartList.EMPTY;
         }
 
-        if (stack.is(Pickaxe.PICKAXE.get())) {
-            return createPickaxeParts(stack);
-        }
-
-        return PartList.EMPTY;
+        return switch (stack.getItem()) {
+            case net.minecraft.world.item.Item item when item == Pickaxe.PICKAXE.get() -> createPickaxeParts(stack);
+            default -> PartList.EMPTY;
+        };
     }
 
     private static boolean isFullDurabilityTool(ItemStack stack) {
@@ -50,7 +49,7 @@ public final class ToolStationDisassemblyRecipes {
         }
 
         return new PartList(new ItemStack[] {
-                ToolRod.getColoredPart(handle),
+                ToolRod.getPart(handle),
                 PickaxeHead.getColoredPart(head),
                 Binding.getColoredPart(binding)
         });

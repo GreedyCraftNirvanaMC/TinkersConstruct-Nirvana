@@ -28,16 +28,16 @@ public class ToolRod extends ToolPart {
     public static final DeferredItem<Item> TOOL_ROD = ITEMS.register("parts/tool_rod",
             () -> new ToolRod(144));
 
-    public static void getAllColoredParts(Collection<ItemStack> coloredParts) {
+    public static void getAllParts(Collection<ItemStack> coloredParts) {
         List<Material> materials = TinkerMaterials.materials;
         for (Material material : materials) {
             if (material.getStats() == null || !material.getStats().containsKey("Handle")) { continue; }
-            ItemStack stack = getColoredPart(material);
+            ItemStack stack = getPart(material);
             coloredParts.add(stack);
         }
     }
 
-    public static ItemStack getColoredPart(Material material) {
+    public static ItemStack getPart(Material material) {
         ItemStack stack = new ItemStack(TOOL_ROD.get());
         CompoundTag tag = new CompoundTag();
         tag.putString(Tags.PART_MATERIAL, material.identifier);

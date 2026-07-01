@@ -56,6 +56,7 @@ public class ToolAssemblyRecipe {
         }
     }
 
+    // 返回stack对应的材料，同时验证材料是否含有对应属性
     private static Material getMaterial(ItemStack stack, String requiredStat) {
         CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
         if (customData == null) {
