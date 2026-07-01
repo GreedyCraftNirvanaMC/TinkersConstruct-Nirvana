@@ -30,6 +30,7 @@ public class BlockRegister {
 
     public static void register(IEventBus eventBus) {
         entries();
+        simpleEntries();
         BLOCKS.register(eventBus);
     }
 
@@ -37,7 +38,13 @@ public class BlockRegister {
         // Calling each category's entries initializes its static registrations.
         Collection<DeferredBlock<?>> entries = new ArrayList<>();
         entries.addAll(TableBlocks.entries());
-        entries.addAll(OreBlocks.entries());
         return entries;
+    }
+
+    public static Collection<DeferredBlock<?>> simpleEntries() {
+        Collection<DeferredBlock<?>> simpleEntries = new ArrayList<>();
+
+        simpleEntries.addAll(OreBlocks.entries());
+        return simpleEntries;
     }
 }
