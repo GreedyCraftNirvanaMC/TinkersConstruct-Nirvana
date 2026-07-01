@@ -24,6 +24,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.registries.DeferredItem;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -94,13 +95,19 @@ public class Pickaxe extends TinkerTools {
     }
 
     @Override
-    public Collection<RepairMaterial> getRepairMaterials(ItemStack stack) {
+    public Collection<RepairInfo> getRepairInfo(ItemStack stack) {
+        Collection<RepairInfo> repairInfos = new ArrayList<>();
         Material head = getMaterial(stack, "Head", "Head");
+        Material handle = getMaterial(stack, "Handle", "Handle");
         if (head == null) {
             return List.of();
         }
+        int headDurability = ((HeadMaterialStats) head.getStats().get("Head")).durability;
+        int handleDurability = ((HandleMaterialStats) handle.getStats().get("Handle")).durability;
+        repairInfos.add(new RepairInfo(head, 1.0F, headDurability));
+        repairInfos.add(new RepairInfo(handle, 0.8F, handleDurability));
 
-        return List.of(new RepairMaterial(head, 1.0F, ((HeadMaterialStats) head.getStats().get("Head")).getDurability()));
+        return repairInfos;
     }
 
     private static Material getMaterial(ItemStack stack, String materialKey, String requiredStat) {

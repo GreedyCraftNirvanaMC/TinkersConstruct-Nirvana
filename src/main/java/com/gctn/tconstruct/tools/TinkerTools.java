@@ -18,7 +18,7 @@ public abstract class TinkerTools extends Item {
         super(new Item.Properties().stacksTo(1));
     }
 
-    public Collection<RepairMaterial> getRepairMaterials(ItemStack stack) {
+    public Collection<RepairInfo> getRepairInfo(ItemStack stack) {
         return List.of();
     }
 
@@ -26,6 +26,6 @@ public abstract class TinkerTools extends Item {
         ITEMS.register(eventBus);
     }
 
-    public record RepairMaterial(Material material, float coefficient, int durability) {
+    public record RepairInfo(Material material, float partEfficient, int durability) {
     }
 }
