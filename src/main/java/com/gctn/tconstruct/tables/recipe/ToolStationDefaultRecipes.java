@@ -20,6 +20,7 @@ public final class ToolStationDefaultRecipes {
     private ToolStationDefaultRecipes() {
     }
 
+    // 预览结果
     public static ItemStack createResult(Container container) {
         ItemStack tool = container.getItem(TOOL_SLOT);
         if (!isTinkerTool(tool)) {
@@ -34,6 +35,7 @@ public final class ToolStationDefaultRecipes {
         return createRepairResult(container);
     }
 
+    // 确认后消耗原料
     public static void consumeInputs(Container container) {
         ItemStack tool = container.getItem(TOOL_SLOT);
         if (!isTinkerTool(tool)) {
@@ -59,6 +61,7 @@ public final class ToolStationDefaultRecipes {
         }
     }
 
+    // TODO 匹配强化配方
     private static ItemStack createEnhancementResult(Container container) {
         return ItemStack.EMPTY;
     }
@@ -66,6 +69,7 @@ public final class ToolStationDefaultRecipes {
     private static void consumeEnhancementInputs(Container container) {
     }
 
+    // 获取修复结果
     private static ItemStack createRepairResult(Container container) {
         ItemStack tool = container.getItem(TOOL_SLOT);
         RepairPlan repairPlan = createRepairPlan(container);
@@ -79,6 +83,7 @@ public final class ToolStationDefaultRecipes {
         return repairedTool;
     }
 
+    // 获取修复方案(包括修复量和材料消耗情况)
     private static RepairPlan createRepairPlan(Container container) {
         ensureMaterialListInitialized();
 
@@ -118,6 +123,7 @@ public final class ToolStationDefaultRecipes {
         return new RepairPlan(totalRepairAmount, remainingDamage);
     }
 
+    // 获取修复槽位和对应材料信息
     private static List<RepairMatch> findRepairMatches(Container container, ItemStack tool, int[] totalRepairAmount) {
         List<RepairMatch> repairMatches = new ArrayList<>();
         TinkerTools tinkerTool = (TinkerTools) tool.getItem();
@@ -143,6 +149,7 @@ public final class ToolStationDefaultRecipes {
         return repairMatches;
     }
 
+    // 获取可用于修复的槽位和材料
     private static List<RepairMatch> findInputMatch(Container container, RepairInfo repairInfo, int[] totalRepairAmount) {
         Material material = repairInfo.material();
         float partEfficient = repairInfo.partEfficient();
