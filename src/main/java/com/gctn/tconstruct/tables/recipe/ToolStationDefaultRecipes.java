@@ -15,7 +15,7 @@ public final class ToolStationDefaultRecipes {
     private static final int TOOL_SLOT = 0;
     private static final int FIRST_MATERIAL_SLOT = 1;
     private static final int LAST_MATERIAL_SLOT = 5;
-    private static final float REPAIR_FRACTION_PER_MATERIAL = 0.3F;
+    private static final int MATERIAL_SLOT_COUNT = LAST_MATERIAL_SLOT - FIRST_MATERIAL_SLOT + 1;
 
     private ToolStationDefaultRecipes() {
     }
@@ -47,13 +47,15 @@ public final class ToolStationDefaultRecipes {
         }
 
         RepairPlan repairPlan = createRepairPlan(container);
-        if (repairPlan == null) {
+        if (repairPlan == null || repairPlan.isEmpty()) {
             return;
         }
 
         container.setItem(TOOL_SLOT, ItemStack.EMPTY);
-        for (int i = 0; i <= 4; i++) {
-            container.removeItem(i + 1, repairPlan.repairCount[i]);
+        for (int i = 0; i < MATERIAL_SLOT_COUNT; i++) {
+            if (repairPlan.repairCount[i] > 0) {
+                container.removeItem(FIRST_MATERIAL_SLOT + i, repairPlan.repairCount[i]);
+            }
         }
     }
 
@@ -67,23 +69,25 @@ public final class ToolStationDefaultRecipes {
     private static ItemStack createRepairResult(Container container) {
         ItemStack tool = container.getItem(TOOL_SLOT);
         RepairPlan repairPlan = createRepairPlan(container);
-        if (repairPlan == null || Arrays.equals(repairPlan.repairCount, new int[]{0, 0, 0, 0, 0})) {
+        if (repairPlan == null || repairPlan.isEmpty()) {
             return ItemStack.EMPTY;
         }
 
         ItemStack repairedTool = tool.copy();
         repairedTool.setCount(1);
-        repairedTool.setDamageValue(Math.max(0, repairPlan.remainingDamage));
+        repairedTool.setDamageValue(repairPlan.remainingDamage);
         return repairedTool;
     }
 
     private static RepairPlan createRepairPlan(Container container) {
+        ensureMaterialListInitialized();
+
         ItemStack tool = container.getItem(TOOL_SLOT);
         if (!isRepairableTool(tool)) {
             return null;
         }
         int remainingDamage = tool.getDamageValue();
-        int[] totalRepairAmount = {0, 0, 0, 0, 0};
+        int[] totalRepairAmount = new int[MATERIAL_SLOT_COUNT];
 
         while (remainingDamage > 0) {
             Collection<RepairMatch> repairMatches = findRepairMatches(container, tool, totalRepairAmount);
@@ -91,68 +95,71 @@ public final class ToolStationDefaultRecipes {
                 break;
             }
 
+            double matchEfficiency = 1 + (repairMatches.size() - 1) / 9.0;
             for (RepairMatch repairMatch : repairMatches) {
-                if (remainingDamage <= 0) {
+                if (remainingDamage == 0) {
                     break;
                 }
-                double matchEfficient = 1 + (repairMatches.size() - 1) / 9.0;
-                int repairAmount = getRepairAmount(tool, repairMatch.partEfficient, repairMatch.matEfficient, matchEfficient);
-                TinkersConstructNirvana.LOGGER.debug(String.valueOf(repairMatch.partEfficient()));
-                TinkersConstructNirvana.LOGGER.debug(String.valueOf(repairMatch.matEfficient()));
-                TinkersConstructNirvana.LOGGER.debug(String.valueOf(matchEfficient));
-                int slot = repairMatch.slot() - 1;
+                int repairAmount = getRepairAmount(tool, repairMatch.partEfficient, repairMatch.matEfficient, matchEfficiency);
+                // 测试日志，后续删除
+                TinkersConstructNirvana.LOGGER.debug(
+                        "Repair match: part={}, material={}, match={}",
+                        repairMatch.partEfficient(),
+                        repairMatch.matEfficient(),
+                        matchEfficiency
+                );
+
+                int slot = repairMatch.slot() - FIRST_MATERIAL_SLOT;
                 totalRepairAmount[slot] += 1;
-                remainingDamage -= repairAmount;
+                remainingDamage = Math.max(0, remainingDamage - repairAmount);
             }
         }
 
         return new RepairPlan(totalRepairAmount, remainingDamage);
     }
 
-    private static Collection<RepairMatch> findRepairMatches(Container container, ItemStack tool, int[] totalRepairAmount) {
+    private static List<RepairMatch> findRepairMatches(Container container, ItemStack tool, int[] totalRepairAmount) {
         List<RepairMatch> repairMatches = new ArrayList<>();
         TinkerTools tinkerTool = (TinkerTools) tool.getItem();
         Set<String> checkedMaterialIds = new HashSet<>();
+        List<RepairInfo> repairInfos = tinkerTool.getRepairInfo(tool);
 
-        for (RepairInfo repairInfo : tinkerTool.getRepairInfo(tool)) {
+        for (RepairInfo repairInfo : repairInfos) {
             Material material = repairInfo.material();
             if (material == null || material.identifier == null || repairInfo.partEfficient() <= 0.0F) {
                 continue;
             }
+            // 每种材料只计算一次
             if (!checkedMaterialIds.add(material.identifier)) {
                 continue;
             }
 
-            Collection<RepairMatch> repairMatch = findInputMatch(container, repairInfo, totalRepairAmount);
+            List<RepairMatch> repairMatch = findInputMatch(container, repairInfo, totalRepairAmount);
             if (!repairMatch.isEmpty()) {
-                for(RepairMatch match : repairMatch) {
-                    repairMatches.add(match);
-                }
+                repairMatches.addAll(repairMatch);
             }
         }
 
         return repairMatches;
     }
 
-    private static Collection<RepairMatch> findInputMatch(Container container, RepairInfo repairInfo, int[] totalRepairAmount) {
-        ensureMaterialListInitialized();
-
+    private static List<RepairMatch> findInputMatch(Container container, RepairInfo repairInfo, int[] totalRepairAmount) {
         Material material = repairInfo.material();
         float partEfficient = repairInfo.partEfficient();
 
-        Collection<RepairMatch> repairMatches = new ArrayList<>();
+        List<RepairMatch> repairMatches = new ArrayList<>();
         for (int slot = FIRST_MATERIAL_SLOT; slot <= LAST_MATERIAL_SLOT; slot++) {
             ItemStack materialStack = container.getItem(slot);
             if (materialStack.isEmpty()) {
                 continue;
             }
-            if(materialStack.getCount() <= totalRepairAmount[slot- 1 ]) {
+            if(materialStack.getCount() <= totalRepairAmount[slot - FIRST_MATERIAL_SLOT]) {
                 continue;
             }
             String inputItemId = BuiltInRegistries.ITEM.getKey(materialStack.getItem()).toString();
             double matEfficient = materialMatchesInput(material, inputItemId);
-            if (matEfficient != 0) {
-                repairMatches.add(new RepairMatch(slot, materialStack, partEfficient, matEfficient));
+            if (matEfficient > 0.0) {
+                repairMatches.add(new RepairMatch(slot, partEfficient, matEfficient));
             }
         }
 
@@ -177,14 +184,8 @@ public final class ToolStationDefaultRecipes {
     }
 
     private static double materialMatchesInput(Material material, String inputItemId) {
-        double efficient = 0.0;
-        Map<String, Double> matEfficient = MaterialList.MATERIAL_MAP.get(material);
-        if (matEfficient == null) {
-            return efficient;
-        }
-        efficient = matEfficient.getOrDefault(inputItemId, 0.0);
-        return efficient;
-
+        Map<String, Double> efficiencies = MaterialList.MATERIAL_MAP.get(material);
+        return efficiencies == null ? 0.0 : efficiencies.getOrDefault(inputItemId, 0.0);
     }
 
     private static int getRepairAmount(ItemStack tool, float partEfficient, double repairEfficient, double matchEfficient) {
@@ -192,8 +193,16 @@ public final class ToolStationDefaultRecipes {
     }
 
     private record RepairPlan(int[] repairCount, int remainingDamage) {
+        boolean isEmpty() {
+            for (int count : repairCount) {
+                if (count > 0) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 
-    private record RepairMatch(int slot, ItemStack materialStack, float partEfficient, double matEfficient) {
+    private record RepairMatch(int slot, float partEfficient, double matEfficient) {
     }
 }

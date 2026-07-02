@@ -25,7 +25,6 @@ import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import static com.gctn.tconstruct.tools.toolcolors.PickaxeColor.PICKAXE_COLOR;
@@ -95,8 +94,8 @@ public class Pickaxe extends TinkerTools {
     }
 
     @Override
-    public Collection<RepairInfo> getRepairInfo(ItemStack stack) {
-        Collection<RepairInfo> repairInfos = new ArrayList<>();
+    public List<RepairInfo> getRepairInfo(ItemStack stack) {
+        List<RepairInfo> repairInfos = new ArrayList<>();
         Material head = getMaterial(stack, "Head", "Head");
         Material handle = getMaterial(stack, "Handle", "Handle");
         if (head == null) {

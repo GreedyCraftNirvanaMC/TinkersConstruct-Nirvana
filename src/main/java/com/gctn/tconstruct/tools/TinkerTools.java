@@ -7,7 +7,6 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-import java.util.Collection;
 import java.util.List;
 
 public abstract class TinkerTools extends Item {
@@ -18,7 +17,7 @@ public abstract class TinkerTools extends Item {
         super(new Item.Properties().stacksTo(1));
     }
 
-    public Collection<RepairInfo> getRepairInfo(ItemStack stack) {
+    public List<RepairInfo> getRepairInfo(ItemStack stack) {
         return List.of();
     }
 
