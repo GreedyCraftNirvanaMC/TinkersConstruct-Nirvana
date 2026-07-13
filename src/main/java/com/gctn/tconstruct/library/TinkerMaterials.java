@@ -5,14 +5,19 @@ import com.gctn.tconstruct.library.stats.ExtraMaterialStats;
 import com.gctn.tconstruct.library.stats.HandleMaterialStats;
 import com.gctn.tconstruct.library.stats.HeadMaterialStats;
 import com.gctn.tconstruct.library.utils.HarvestLevels;
-import com.google.common.collect.Lists;
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
-public class TinkerMaterials {
-    public static final List<Material> materials = Lists.newArrayList();
-    public static final List<Material> craftableMaterials = Lists.newArrayList();
-    public static final List<Material> castableMaterials = Lists.newArrayList();
+public final class TinkerMaterials {
+    private static final List<Material> MUTABLE_MATERIALS = new ArrayList<>();
+    private static final Map<String, Material> MATERIALS_BY_ID = new LinkedHashMap<>();
+    public static final List<Material> materials = Collections.unmodifiableList(MUTABLE_MATERIALS);
+
+    private TinkerMaterials() {
+    }
 
     // natural resources/blocks
     public static final Material wood       = mat("wood", 0xff8e661b);
@@ -57,10 +62,10 @@ public class TinkerMaterials {
     public static final Material alumite    = mat("alumite", 0xffffa7e9);
 
     // specul
-    public static final Material xu;
+    public static final Material xu = hiddenMat("unstable", 0xFFFFFFFF);
 
     // unknown
-    public static final Material unknown;
+    public static final Material unknown = hiddenMat("unknown", 0xFFFFFFFF);
 
     // bowstring materials 弓弦
     public static final Material string    = mat("string", 0xffeeeeee);
@@ -82,38 +87,62 @@ public class TinkerMaterials {
     public static final Material slimeleaf_orange = mat("slimeleaf_orange", 0xffff960d);
     public static final Material slimeleaf_purple = mat("slimeleaf_purple", 0xffc873c8);
 
-    public static Material mat(String name, int color) {
-        // make materials show by default, integration will make them invisible
+    private static Material mat(String name, int color) {
         Material mat = new Material(name, color, false);
-        materials.add(mat);
+        register(mat);
         return mat;
     }
 
-    public static void setCraftableMaterials(Material... matList) {
+    private static Material hiddenMat(String name, int color) {
+        Material mat = new Material(name, color, true);
+        register(mat);
+        return mat;
+    }
+
+    private static void register(Material mat) {
+        String name = mat.identifier;
+        if (MATERIALS_BY_ID.putIfAbsent(name, mat) != null) {
+            throw new IllegalArgumentException("Duplicate material identifier: " + name);
+        }
+        MUTABLE_MATERIALS.add(mat);
+    }
+
+    public static Material getMaterial(String identifier) {
+        return MATERIALS_BY_ID.get(identifier);
+    }
+
+    public static List<Material> getCraftableMaterials() {
+        return materials.stream().filter(Material::isCraftable).toList();
+    }
+
+    public static List<Material> getCastableMaterials() {
+        return materials.stream().filter(Material::isCastable).toList();
+    }
+
+    /** Explicit class-initialization hook for the mod constructor. */
+    public static void bootstrap() {
+    }
+
+    private static void setCraftableMaterials(Material... matList) {
         for (Material mat : matList) {
             mat.setCraftable(true);
         }
     }
 
-    public static void setCastableMaterials(Material... matList) {
+    private static void setCastableMaterials(Material... matList) {
         for (Material mat : matList) {
             mat.setCastable(true);
         }
     }
 
     // 注册材料属性
-    public static void registerToolMaterialStats() {
-        wood.addMaterialStats(new HeadMaterialStats(35, HarvestLevels.STONE, 1, 2),
+    private static void registerToolMaterialStats() {
+        wood.addMaterialStats(new HeadMaterialStats(35, 2.00F, 2.00F, HarvestLevels.STONE),
                 new HandleMaterialStats(1, 25),
                 new ExtraMaterialStats(15));
-        stone.addMaterialStats(new HeadMaterialStats(100, HarvestLevels.IRON, 1, 4),
-                new HandleMaterialStats(1, 100),
-                new ExtraMaterialStats(150));
-    }
-
-    static {
-        xu = new Material("unstable", 0xFFFFFFFF, true);
-        unknown = new Material("unknown", 0xFFFFFFFF, true);
+        stone.addMaterialStats(new HeadMaterialStats(120, 4.00F, 3.00F, HarvestLevels.IRON),
+                new HandleMaterialStats(0.50F, -50),
+                new ExtraMaterialStats(20));
     }
 
     // 设定合成方式

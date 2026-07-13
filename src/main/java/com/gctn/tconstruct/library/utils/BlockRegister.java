@@ -10,11 +10,10 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Supplier;
 
-public class BlockRegister {
+public final class BlockRegister {
     public static final DeferredRegister.Blocks BLOCKS =
         DeferredRegister.createBlocks(TinkersConstructNirvana.MODID);
 
@@ -36,15 +35,13 @@ public class BlockRegister {
 
     public static Collection<DeferredBlock<?>> entries() {
         // Calling each category's entries initializes its static registrations.
-        Collection<DeferredBlock<?>> entries = new ArrayList<>();
-        entries.addAll(TableBlocks.entries());
-        return entries;
+        return TableBlocks.entries();
     }
 
     public static Collection<DeferredBlock<?>> simpleEntries() {
-        Collection<DeferredBlock<?>> simpleEntries = new ArrayList<>();
+        return OreBlocks.entries();
+    }
 
-        simpleEntries.addAll(OreBlocks.entries());
-        return simpleEntries;
+    private BlockRegister() {
     }
 }

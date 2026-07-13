@@ -13,7 +13,14 @@ public abstract class ToolPart extends Item {
 
     public ToolPart(int cost) {
         super(new Item.Properties());
+        if (cost <= 0) {
+            throw new IllegalArgumentException("Part cost must be positive");
+        }
         this.cost = cost;
+    }
+
+    public int getCost() {
+        return cost;
     }
 
     public static void register(IEventBus eventBus) {

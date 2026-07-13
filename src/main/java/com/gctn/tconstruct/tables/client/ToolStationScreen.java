@@ -27,6 +27,7 @@ public class ToolStationScreen extends AbstractContainerScreen<ToolStationMenu> 
     private static final int MODE_BUTTON_X = -108;
     private static final int MODE_BUTTON_Y = 10;
     private static final int MODE_BUTTON_SPACING = 22;
+    private static final float INPUT_SLOT_BACKGROUND_ALPHA = 0.28F;
     private static final float INPUT_SLOT_ICON_ALPHA = 0.35F;
 
     private final List<ModeButton> modeButtons = new ArrayList<>();
@@ -83,7 +84,10 @@ public class ToolStationScreen extends AbstractContainerScreen<ToolStationMenu> 
     }
 
     private void renderItemSlot(GuiGraphics guiGraphics, int x, int y) {
-        guiGraphics.blit(ICON_TEXTURE, this.leftPos + x, this.topPos + y, 144, 216, 18, 18);
+        guiGraphics.setColor(1.0F, 1.0F, 1.0F, INPUT_SLOT_BACKGROUND_ALPHA);
+        guiGraphics.blit(BACKGROUND_TEXTURE, this.leftPos + x, this.topPos + y, 176, 0, 18, 18);
+        guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+        guiGraphics.blit(BACKGROUND_TEXTURE, this.leftPos + x, this.topPos + y, 194, 0, 18, 18);
     }
 
     private void renderInputSlotIcon(GuiGraphics guiGraphics, int inputSlot, int x, int y) {

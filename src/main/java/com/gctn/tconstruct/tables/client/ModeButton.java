@@ -3,6 +3,7 @@ package com.gctn.tconstruct.tables.client;
 import com.gctn.tconstruct.tables.data.Mode;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -18,6 +19,7 @@ import java.util.function.Predicate;
 class ModeButton extends AbstractButton {
     private static final int SIZE = 18;
     private static final int BUTTON_TEXTURE_X = 180;
+    private static final int HOVERED_BUTTON_TEXTURE_X = 216;
     private static final int ACTIVE_BUTTON_TEXTURE_X = 144;
     private static final int BUTTON_TEXTURE_Y = 180;
 
@@ -61,6 +63,7 @@ class ModeButton extends AbstractButton {
         this.buttonTexture = buttonTexture;
         this.isSelected = isSelected;
         this.onPressed = onPressed;
+        this.setTooltip(Tooltip.create(this.getMessage()));
     }
 
     Mode getMode() {
@@ -74,9 +77,11 @@ class ModeButton extends AbstractButton {
 
     @Override
     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        int textureX = this.isSelected.test(this.mode) ? ACTIVE_BUTTON_TEXTURE_X : BUTTON_TEXTURE_X;
+        int textureX = this.isSelected.test(this.mode)
+                ? ACTIVE_BUTTON_TEXTURE_X
+                : this.isHoveredOrFocused() ? HOVERED_BUTTON_TEXTURE_X : BUTTON_TEXTURE_X;
         guiGraphics.blit(this.buttonTexture, this.getX(), this.getY(), textureX, BUTTON_TEXTURE_Y, SIZE, SIZE);
-        guiGraphics.blit(this.backgroundTexture, this.getX() + 2, this.getY() - 4, 20, 174, 14, 4);
+        guiGraphics.blit(this.backgroundTexture, this.getX(), this.getY() - 2, 18, 176, SIZE, 2);
         if (this.iconTexture != null) {
             int iconX = this.getX() + (SIZE - this.iconWidth) / 2;
             int iconY = this.getY() + (SIZE - this.iconHeight) / 2;

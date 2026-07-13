@@ -22,4 +22,7 @@ public final class ToolStationAssemblyRecipes {
     public static ToolAssemblyRecipe get(Mode mode) {
         return RECIPES.get(mode);
     }
+
+    private ToolStationAssemblyRecipes() {
+    }
 }

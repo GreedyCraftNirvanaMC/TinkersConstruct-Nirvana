@@ -2,6 +2,7 @@ package com.gctn.tconstruct.tables.data;
 
 import com.gctn.tconstruct.tables.menu.ToolStationMenu;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -39,9 +40,14 @@ public class ModeAwareInputSlot extends Slot {
     }
 
     @Override
-    public void onTake(net.minecraft.world.entity.player.Player player, ItemStack stack) {
+    public boolean mayPickup(Player player) {
+        return this.isActive() && super.mayPickup(player);
+    }
+
+    @Override
+    public void onTake(Player player, ItemStack stack) {
         super.onTake(player, stack);
-        if (this.slotMode == Mode.DISASSEMBLE) {
+        if (this.slotMode == Mode.DISASSEMBLE && this.menu.isMode(Mode.DISASSEMBLE)) {
             this.menu.disassemblyPartTaken();
         }
     }

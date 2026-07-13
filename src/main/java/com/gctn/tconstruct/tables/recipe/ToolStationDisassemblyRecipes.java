@@ -40,7 +40,7 @@ public final class ToolStationDisassemblyRecipes {
             return PartList.EMPTY;
         }
 
-        CompoundTag tag = customData.copyTag();
+        CompoundTag tag = customData.getUnsafe();
         Material handle = getMaterial(tag, "Handle", "Handle");
         Material head = getMaterial(tag, "Head", "Head");
         Material binding = getMaterial(tag, "Binding", "Extra");
@@ -56,15 +56,8 @@ public final class ToolStationDisassemblyRecipes {
     }
 
     private static Material getMaterial(CompoundTag tag, String materialKey, String requiredStat) {
-        String materialId = tag.getString(materialKey);
-        for (Material material : TinkerMaterials.materials) {
-            if (material.identifier.equals(materialId)
-                    && material.getStats() != null
-                    && material.getStats().containsKey(requiredStat)) {
-                return material;
-            }
-        }
-        return null;
+        Material material = TinkerMaterials.getMaterial(tag.getString(materialKey));
+        return material != null && material.hasStats(requiredStat) ? material : null;
     }
 
     public record PartList(ItemStack[] parts) {

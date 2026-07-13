@@ -11,9 +11,12 @@ import java.util.Locale;
 
 import static com.gctn.tconstruct.TinkersConstructNirvana.MODID;
 
-public class Util {
+public final class Util {
     public static final DecimalFormat df = new DecimalFormat("#,###,###.##", DecimalFormatSymbols.getInstance(Locale.US));
     public static final DecimalFormat dfPercent = new DecimalFormat("#%");
+
+    private Util() {
+    }
 
     public static Logger getLogger(String type) {
         String log = MODID;
@@ -22,34 +25,23 @@ public class Util {
     }
 
     public static String sanitizeLocalizationString(String string) {
-        return string.toLowerCase(Locale.US).replaceAll(" ", "");
+        return string.toLowerCase(Locale.ROOT).replace(" ", "");
     }
 
     public static String translate(String key, Object... pars) {
         // translates twice to allow rerouting/alias
-        return Component.translatable(Component.translatable(String.format(key, pars)).toString().trim()).toString().trim();
-
+        String translatedKey = Component.translatable(String.format(key, pars)).getString().trim();
+        return Component.translatable(translatedKey).getString().trim();
     }
 
     /**
      * Returns the actual color value for a chatformatting
      */
     public static int enumChatFormattingToColor(ChatFormatting color) {
-        // TODO 修改后验证正确性
-        int i = color.getColor();
-        int j = (i >> 3 & 1) * 85;
-        int k = (i >> 2 & 1) * 170 + j;
-        int l = (i >> 1 & 1) * 170 + j;
-        int i1 = (i >> 0 & 1) * 170 + j;
-        if(i == 6) {
-            k += 85;
+        Integer rgb = color.getColor();
+        if (rgb == null) {
+            throw new IllegalArgumentException(color + " is not a color");
         }
-        if(i >= 16) {
-            k /= 4;
-            l /= 4;
-            i1 /= 4;
-        }
-
-        return (k & 255) << 16 | (l & 255) << 8 | i1 & 255;
+        return rgb;
     }
 }

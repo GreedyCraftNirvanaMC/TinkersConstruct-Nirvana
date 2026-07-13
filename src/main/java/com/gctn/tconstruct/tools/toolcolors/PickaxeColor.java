@@ -7,38 +7,29 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.component.CustomData;
 
-public class PickaxeColor {
+public final class PickaxeColor {
+    private static final int DEFAULT_COLOR = 0xFFFFFFFF;
+
+    private PickaxeColor() {
+    }
+
     public static final ItemColor PICKAXE_COLOR = (stack, tintIndex) -> {
         CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
-        if (customData == null) return 0xFFFFFFFF; // 无NBT时返回默认白色
+        if (customData == null) {
+            return DEFAULT_COLOR;
+        }
 
-        CompoundTag tag = customData.copyTag();
-        if (!tag.contains("Handle") || !tag.contains("Head") || !tag.contains("Binding")) return 0xFFFFFFFF;
-
+        CompoundTag tag = customData.getUnsafe();
         return switch (tintIndex) {
-            case 0 -> // layer0 → Handle（手柄）
-                    getMaterialColor(tag.getString("Handle"));
-            case 1 -> // layer1 → Head（头部）
-                    getMaterialColor(tag.getString("Head"));
-            case 2 -> // layer2 → Binding（绑定）
-                    getMaterialColor(tag.getString("Binding"));
-            default -> // 异常索引，返回默认色
-                    0xFFFFFFFF;
+            case 0 -> getMaterialColor(tag.getString("Handle"));
+            case 1 -> getMaterialColor(tag.getString("Head"));
+            case 2 -> getMaterialColor(tag.getString("Binding"));
+            default -> DEFAULT_COLOR;
         };
     };
 
-    /**
-     * 方法：根据材质ID获取颜色
-     * @param materialId 材质标识符（如"iron"、"diamond"）
-     * @return 材质对应的颜色，匹配不到返回默认白色
-     */
     private static int getMaterialColor(String materialId) {
-        for (Material material : TinkerMaterials.materials) {
-            if (material.identifier.equals(materialId)) {
-                return material.color;
-            }
-        }
-        // 材质ID匹配不到时返回默认色
-        return 0xFFFFFFFF;
+        Material material = TinkerMaterials.getMaterial(materialId);
+        return material == null ? DEFAULT_COLOR : material.color;
     }
 }

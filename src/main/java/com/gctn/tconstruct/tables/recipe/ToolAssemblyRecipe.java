@@ -63,16 +63,9 @@ public class ToolAssemblyRecipe {
             return null;
         }
 
-        CompoundTag tag = customData.copyTag();
-        String materialId = tag.getString(Tags.PART_MATERIAL);
-        for (Material material : TinkerMaterials.materials) {
-            if (material.identifier.equals(materialId)
-                    && material.getStats() != null
-                    && material.getStats().containsKey(requiredStat)) {
-                return material;
-            }
-        }
-        return null;
+        CompoundTag tag = customData.getUnsafe();
+        Material material = TinkerMaterials.getMaterial(tag.getString(Tags.PART_MATERIAL));
+        return material != null && material.hasStats(requiredStat) ? material : null;
     }
 
     record PartRequirement(int inputSlot, Supplier<? extends Item> item, String requiredStat) {

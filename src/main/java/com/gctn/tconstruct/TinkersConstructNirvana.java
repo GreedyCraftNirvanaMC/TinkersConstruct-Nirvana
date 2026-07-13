@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(TinkersConstructNirvana.MODID)
-public class TinkersConstructNirvana {
+public final class TinkersConstructNirvana {
     // Define mod id in a common place for everything to reference
     public static final String MODID = "tconstruct";
     // Directly reference a slf4j logger
@@ -25,8 +25,7 @@ public class TinkersConstructNirvana {
         BlockRegister.register(modEventBus);
         TableRegistryBus.register(modEventBus);
         ItemRegister.register(modEventBus);
-        new TinkerMaterials();
+        TinkerMaterials.bootstrap();
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
-    
 }

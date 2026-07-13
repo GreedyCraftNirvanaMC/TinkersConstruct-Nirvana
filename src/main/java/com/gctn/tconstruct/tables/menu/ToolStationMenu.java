@@ -5,6 +5,7 @@ import com.gctn.tconstruct.tables.data.ModeAwareInputSlot;
 import com.gctn.tconstruct.tables.data.ToolStationResultSlot;
 import com.gctn.tconstruct.tables.data.ToolStationSlotPositions;
 import com.gctn.tconstruct.tables.data.ToolStationSlotPositions.SlotPosition;
+import com.gctn.tconstruct.tables.block.entity.ToolStationBlockEntity;
 import com.gctn.tconstruct.tables.recipe.ToolAssemblyRecipe;
 import com.gctn.tconstruct.tables.recipe.ToolStationAssemblyRecipes;
 import com.gctn.tconstruct.tables.recipe.ToolStationDefaultRecipes;
@@ -20,12 +21,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 public class ToolStationMenu extends AbstractContainerMenu {
-    // 真实输入容器只有 7 格；菜单会为每个模式创建一套可见槽，再用 isActive 控制当前可交互槽。
-    public static final int CONTAINER_SIZE = 7;
+    // 真实输入容器只有 6 格；菜单会为每个模式创建一套可见槽，再用 isActive 控制当前可交互槽。
+    public static final int CONTAINER_SIZE = ToolStationSlotPositions.INPUT_SLOT_COUNT;
 
-    public static final int MOVING_SLOT_INDEX = 0;
-    public static final int CONDITIONAL_SLOT_INDEX = 1;
-    public static final int RESULT_SLOT_INDEX = 6;
     public static final int INPUT_SLOT_COUNT = ToolStationSlotPositions.INPUT_SLOT_COUNT;
 
     public static final int DEFAULT_MODE_BUTTON = Mode.DEFAULT.getButtonId();
@@ -37,7 +35,7 @@ public class ToolStationMenu extends AbstractContainerMenu {
 
     private static final int RESULT_MENU_SLOT = 0;
     private static final int INPUT_MENU_SLOT_START = 1;
-    private static final int TOOL_STATION_SLOT_COUNT = 1 + Mode.values().length * INPUT_SLOT_COUNT;
+    private static final int TOOL_STATION_SLOT_COUNT = 1 + Mode.count() * INPUT_SLOT_COUNT;
 
     private static final int PLAYER_INVENTORY_COLUMNS = 9;
     private static final int PLAYER_INVENTORY_ROWS = 3;
@@ -58,7 +56,10 @@ public class ToolStationMenu extends AbstractContainerMenu {
     private static final int SLOT_SPACING = 18;
 
     private final Container toolStation;
+    private final ToolStationBlockEntity blockEntity;
+    private final Player menuUser;
     private final SimpleContainer resultContainer = new SimpleContainer(1);
+    private final ToolStationResultSlot resultSlot;
 
     private Mode mode = Mode.DEFAULT;
 
@@ -73,10 +74,13 @@ public class ToolStationMenu extends AbstractContainerMenu {
     // 服务端菜单绑定方块实体容器，并初始化工具台槽位、玩家背包和首次结果。
     public ToolStationMenu(int containerId, Inventory playerInventory, Container container) {
         super(TableMenuRegistries.TOOL_STATION_MENU.get(), containerId);
+        checkContainerSize(container, CONTAINER_SIZE);
         this.toolStation = container;
+        this.blockEntity = container instanceof ToolStationBlockEntity station ? station : null;
+        this.menuUser = playerInventory.player;
         container.startOpen(playerInventory.player);
 
-        this.addToolStationSlots(container);
+        this.resultSlot = this.addToolStationSlots(container);
         this.addPlayerInventorySlots(playerInventory);
         this.updateResult();
     }
@@ -84,6 +88,10 @@ public class ToolStationMenu extends AbstractContainerMenu {
     // 处理 Shift 点击转移物品，并保持原版菜单的槽位回调顺序。
     @Override
     public ItemStack quickMoveStack(Player player, int quickMovedSlotIndex) {
+        if (quickMovedSlotIndex < 0 || quickMovedSlotIndex >= this.slots.size()) {
+            return ItemStack.EMPTY;
+        }
+
         Slot quickMovedSlot = this.slots.get(quickMovedSlotIndex);
         if (quickMovedSlot == null || !quickMovedSlot.hasItem()) {
             return ItemStack.EMPTY;
@@ -154,11 +162,16 @@ public class ToolStationMenu extends AbstractContainerMenu {
         return this.mode == mode;
     }
 
+    public boolean isBoundTo(Container container) {
+        return this.toolStation == container;
+    }
+
     // 控制客户端是否显示指定模式按钮。
     public boolean isModeButtonVisible(Mode mode) {
         return mode == Mode.DEFAULT
                 || mode == Mode.DISASSEMBLE
-                || ToolStationSlotPositions.getActiveInputSlotCount(mode) <= MAX_VISIBLE_SPECIAL_MODE_INPUTS;
+                || ToolStationAssemblyRecipes.get(mode) != null
+                && ToolStationSlotPositions.getActiveInputSlotCount(mode) <= MAX_VISIBLE_SPECIAL_MODE_INPUTS;
     }
 
     // 判断当前模式下某个输入槽是否应该显示和可交互。
@@ -191,6 +204,7 @@ public class ToolStationMenu extends AbstractContainerMenu {
     public boolean canPlaceResultSlot(ItemStack stack) {
         return this.mode == Mode.DISASSEMBLE
                 && !this.disassemblyPending
+                && (this.blockEntity == null || !this.blockEntity.isDisassembling())
                 && this.resultContainer.getItem(0).isEmpty()
                 && this.areInputSlotsEmpty()
                 && ToolStationDisassemblyRecipes.canDisassemble(stack);
@@ -199,10 +213,13 @@ public class ToolStationMenu extends AbstractContainerMenu {
     // 结果槽询问玩家当前是否可以取走输出或拆解源工具。
     public boolean canTakeResultSlot() {
         if (this.mode == Mode.DISASSEMBLE) {
-            return this.disassemblyPending && !this.resultContainer.getItem(0).isEmpty();
+            return this.disassemblyPending
+                    && !this.resultContainer.getItem(0).isEmpty()
+                    && (this.blockEntity == null || this.blockEntity.isDisassembling());
         }
 
-        return !this.resultContainer.getItem(0).isEmpty();
+        ItemStack currentResult = this.resultContainer.getItem(0);
+        return !currentResult.isEmpty() && ItemStack.matches(currentResult, this.createResult());
     }
 
     // 结果槽内容变化时触发拆解预览或取消拆解预览。
@@ -233,14 +250,16 @@ public class ToolStationMenu extends AbstractContainerMenu {
     }
 
     // 添加工具台的结果槽和所有模式的输入槽。
-    private void addToolStationSlots(Container container) {
-        this.addSlot(new ToolStationResultSlot(this, this.resultContainer, 0, RESULT_SLOT_X, RESULT_SLOT_Y));
+    private ToolStationResultSlot addToolStationSlots(Container container) {
+        ToolStationResultSlot resultSlot = new ToolStationResultSlot(this, this.resultContainer, 0, RESULT_SLOT_X, RESULT_SLOT_Y);
+        this.addSlot(resultSlot);
 
         for (Mode slotMode : Mode.values()) {
             for (int slotIndex = 0; slotIndex < INPUT_SLOT_COUNT; slotIndex++) {
                 this.addModeInputSlot(container, slotMode, slotIndex);
             }
         }
+        return resultSlot;
     }
 
     // 为一个模式创建一个输入槽；隐藏槽放到屏幕外并由 isActive 禁止交互。
@@ -286,10 +305,14 @@ public class ToolStationMenu extends AbstractContainerMenu {
         return this.moveItemStackTo(stack, PLAYER_INVENTORY_START, HOTBAR_END, false);
     }
 
+    @Override
+    public boolean canTakeItemForPickAll(ItemStack stack, Slot slot) {
+        return slot != this.resultSlot && super.canTakeItemForPickAll(stack, slot);
+    }
+
     // 从玩家背包 Shift 点击时，优先放入工具台，失败后在背包和快捷栏之间移动。
     private boolean movePlayerStack(int quickMovedSlotIndex, ItemStack stack) {
-        if (this.mode == Mode.DISASSEMBLE
-                && this.moveItemStackTo(stack, RESULT_MENU_SLOT, RESULT_MENU_SLOT + 1, false)) {
+        if (this.tryQuickMoveToDisassemblySlot(stack)) {
             return true;
         }
 
@@ -302,6 +325,15 @@ public class ToolStationMenu extends AbstractContainerMenu {
                 : this.moveItemStackTo(stack, PLAYER_INVENTORY_START, PLAYER_INVENTORY_END, false);
     }
 
+    private boolean tryQuickMoveToDisassemblySlot(ItemStack stack) {
+        if (!this.canPlaceResultSlot(stack)) {
+            return false;
+        }
+
+        this.resultSlot.setByPlayer(stack.split(1));
+        return true;
+    }
+
     // 刷新结果槽；拆解模式下结果槽只负责暂存原工具，不生成合成产物。
     private void updateResult() {
         if (this.mode == Mode.DISASSEMBLE) {
@@ -312,7 +344,10 @@ public class ToolStationMenu extends AbstractContainerMenu {
             return;
         }
 
-        this.resultContainer.setItem(0, this.createResult());
+        ItemStack result = this.createResult();
+        if (!ItemStack.matches(this.resultContainer.getItem(0), result)) {
+            this.resultSlot.setFromMenu(result);
+        }
         this.broadcastChanges();
     }
 
@@ -357,10 +392,20 @@ public class ToolStationMenu extends AbstractContainerMenu {
             return;
         }
 
+        ItemStack storedSource = sourceTool.copy();
+        if (this.blockEntity != null && !this.blockEntity.beginDisassembly(storedSource, this.menuUser)) {
+            this.resultSlot.setFromMenu(ItemStack.EMPTY);
+            this.broadcastChanges();
+            return;
+        }
         this.disassemblyPending = true;
         ItemStack[] partStacks = parts.parts();
-        for (int inputSlot = 0; inputSlot < partStacks.length; inputSlot++) {
-            this.toolStation.setItem(inputSlot, partStacks[inputSlot].copy());
+        if (this.blockEntity != null) {
+            this.blockEntity.storeDisassemblyParts(partStacks);
+        } else {
+            for (int inputSlot = 0; inputSlot < partStacks.length; inputSlot++) {
+                this.toolStation.setItem(inputSlot, partStacks[inputSlot].copy());
+            }
         }
         this.toolStation.setChanged();
         this.broadcastChanges();
@@ -382,13 +427,22 @@ public class ToolStationMenu extends AbstractContainerMenu {
             return;
         }
 
-        ItemStack sourceTool = this.resultContainer.getItem(0);
+        ItemStack sourceTool = this.blockEntity == null
+                ? this.resultContainer.getItem(0)
+                : clearPreviewParts ? this.blockEntity.cancelDisassembly() : ItemStack.EMPTY;
+        if (this.blockEntity != null && !clearPreviewParts) {
+            this.blockEntity.finishDisassembly();
+        }
         this.disassemblyPending = false;
         this.resultContainer.setItem(0, ItemStack.EMPTY);
 
         if (clearPreviewParts) {
-            for (int inputSlot = 0; inputSlot < INPUT_SLOT_COUNT; inputSlot++) {
-                this.toolStation.setItem(inputSlot, ItemStack.EMPTY);
+            if (this.blockEntity != null) {
+                this.blockEntity.clearDisassemblyParts();
+            } else {
+                for (int inputSlot = 0; inputSlot < INPUT_SLOT_COUNT; inputSlot++) {
+                    this.toolStation.setItem(inputSlot, ItemStack.EMPTY);
+                }
             }
         }
 

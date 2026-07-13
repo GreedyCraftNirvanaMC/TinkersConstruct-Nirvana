@@ -21,9 +21,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Supplier;
 
-import static com.gctn.tconstruct.library.TinkerMaterials.*;
+import static com.gctn.tconstruct.library.TinkerMaterials.stone;
+import static com.gctn.tconstruct.library.TinkerMaterials.wood;
 
-public class TinkerRegistry {
+public final class TinkerRegistry {
+    private TinkerRegistry() {
+    }
+
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, TinkersConstructNirvana.MODID);
 
@@ -37,7 +41,6 @@ public class TinkerRegistry {
                         ToolRod.getAllParts(tempStacks);
                         Binding.getAllColoredParts(tempStacks);
                         PickaxeHead.getAllColoredParts(tempStacks);
-                        int i = 0;
                         for (ItemStack itemStack : tempStacks) {
                             output.accept(itemStack);
                         }
@@ -50,7 +53,7 @@ public class TinkerRegistry {
                     .icon(() -> new ItemStack(Items.WOODEN_PICKAXE))
                     .title(Component.translatable("tinker_tools_tab"))
                     .displayItems(((itemDisplayParameters, output) -> {
-                        output.accept(Pickaxe.initPickaxe(wood, stone, unknown));
+                        output.accept(Pickaxe.initPickaxe(wood, stone, wood));
                     }))
                     .build());
 
@@ -74,13 +77,13 @@ public class TinkerRegistry {
         CREATIVE_MODE_TABS.register(eventBus);
 
         // Toolparts
+        ToolRod.bootstrap();
+        Binding.bootstrap();
+        PickaxeHead.bootstrap();
         ToolPart.register(eventBus);
-        Binding.register(eventBus);
-        PickaxeHead.register(eventBus);
-        ToolRod.register(eventBus);
 
         // Tools
+        Pickaxe.bootstrap();
         TinkerTools.register(eventBus);
-        Pickaxe.register(eventBus);
     }
 }

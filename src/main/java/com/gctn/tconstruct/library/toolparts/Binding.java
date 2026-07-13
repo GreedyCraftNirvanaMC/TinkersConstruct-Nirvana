@@ -2,6 +2,7 @@ package com.gctn.tconstruct.library.toolparts;
 
 import com.gctn.tconstruct.library.TinkerMaterials;
 import com.gctn.tconstruct.library.materials.Material;
+import com.gctn.tconstruct.library.materials.MaterialValue;
 import com.gctn.tconstruct.library.utils.Tags;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -9,14 +10,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.Collection;
-import java.util.List;
-
-import static com.gctn.tconstruct.library.toolparts.PartColor.PART_COLOR;
 
 public class Binding extends ToolPart {
     public Binding(int cost) {
@@ -24,14 +20,16 @@ public class Binding extends ToolPart {
     }
 
     public static final DeferredItem<Item> BINDING = ITEMS.register("parts/binding",
-            () -> new Binding(144));
+            () -> new Binding(MaterialValue.VALUE_Ingot));
+
+    public static void bootstrap() {
+    }
 
     public static void getAllColoredParts(Collection<ItemStack> coloredParts) {
-        List<Material> materials = TinkerMaterials.materials;
-        for (Material material : materials) {
-            if (material.getStats() == null || !material.getStats().containsKey("Extra")) { continue; }
-            ItemStack stack = getColoredPart(material);
-            coloredParts.add(stack);
+        for (Material material : TinkerMaterials.materials) {
+            if (material.hasStats(Material.EXTRA) && !material.isHidden()) {
+                coloredParts.add(getColoredPart(material));
+            }
         }
     }
 
@@ -40,21 +38,11 @@ public class Binding extends ToolPart {
         CompoundTag tag = new CompoundTag();
         tag.putString(Tags.PART_MATERIAL, material.identifier);
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
-        stack.set(DataComponents.ITEM_NAME, Component.literal(
-                        Component.translatable(
-                                "material."+material.identifier+".name").getString()
-                                +" "
-                                +Component.translatable("item.tconstruct.binding.name").getString()
-                )
-        );
+        stack.set(DataComponents.ITEM_NAME, Component.translatable(
+                "item.tconstruct.material_name",
+                Component.translatable("material." + material.identifier + ".name"),
+                Component.translatable("item.tconstruct.binding.name")));
         return stack;
     }
 
-    private static void registerItemColors(RegisterColorHandlersEvent.Item event) {
-        event.register(PART_COLOR, BINDING.get());
-    }
-
-    public static void register(IEventBus eventBus) {
-        eventBus.addListener(Binding::registerItemColors);
-    }
 }

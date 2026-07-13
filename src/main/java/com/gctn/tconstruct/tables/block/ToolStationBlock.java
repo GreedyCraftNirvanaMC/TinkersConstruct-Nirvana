@@ -3,6 +3,7 @@ package com.gctn.tconstruct.tables.block;
 import com.gctn.tconstruct.tables.block.entity.ToolStationBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -58,13 +59,23 @@ public class ToolStationBlock extends BaseEntityBlock {
 
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!state.is(newState.getBlock())
+                && level.getBlockEntity(pos) instanceof ToolStationBlockEntity blockEntity
+                && blockEntity.isDisassembling()) {
+            blockEntity.rollbackDisassemblyToWorld();
+            blockEntity.clearDisassemblyParts();
+        }
         Containers.dropContentsOnDestroy(state, newState, level, pos);
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
     private void openMenu(Level level, BlockPos pos, Player player) {
         if (!level.isClientSide && level.getBlockEntity(pos) instanceof ToolStationBlockEntity blockEntity) {
-            player.openMenu(blockEntity);
+            if (blockEntity.isInUseByAnotherPlayer(player)) {
+                player.displayClientMessage(Component.translatable("container.tconstruct.toolstation.in_use"), true);
+            } else {
+                player.openMenu(blockEntity);
+            }
         }
     }
 }

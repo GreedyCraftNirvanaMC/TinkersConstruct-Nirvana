@@ -2,19 +2,14 @@ package com.gctn.tconstruct.library;
 
 import com.gctn.tconstruct.library.materials.Material;
 
-import java.util.HashMap;
 import java.util.Map;
 
-public class MaterialList {
-    public static final Map<Material, Map<String, Double>> MATERIAL_MAP = new HashMap<>();
-
-    public static void init(){
-        MATERIAL_MAP.put(TinkerMaterials.wood, Map.ofEntries(
-                Map.entry("minecraft:oak_planks", 0.05)
-        ));
-
-        MATERIAL_MAP.put(TinkerMaterials.stone, Map.ofEntries(
-                Map.entry("minecraft:cobblestone", 0.1)
-        ));
+public final class MaterialList {
+    private MaterialList() {
     }
+
+    public static final Map<Material, Map<String, Double>> MATERIAL_MAP = Map.of(
+            TinkerMaterials.wood, Map.of("minecraft:oak_planks", 1.0),
+            TinkerMaterials.stone, Map.of("minecraft:cobblestone", 1.0)
+    );
 }

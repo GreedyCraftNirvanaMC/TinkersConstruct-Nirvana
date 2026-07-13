@@ -8,15 +8,20 @@ public enum Mode {
     AXE,
     DEBUG;
 
+    private static final Mode[] VALUES = values();
+
     public int getButtonId() {
         return this.ordinal();
     }
 
     public static Mode byButtonId(int id) {
-        Mode[] modes = values();
-        if (id < 0 || id >= modes.length) {
+        if (id < 0 || id >= VALUES.length) {
             return null;
         }
-        return modes[id];
+        return VALUES[id];
+    }
+
+    public static int count() {
+        return VALUES.length;
     }
 }

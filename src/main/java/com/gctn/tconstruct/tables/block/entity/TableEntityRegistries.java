@@ -9,7 +9,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;
 
-public class TableEntityRegistries {
+public final class TableEntityRegistries {
     public static final DeferredRegister<BlockEntityType<?>> TABLE_ENTITY_TYPES =
             DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, TinkersConstructNirvana.MODID);
 
@@ -20,5 +20,8 @@ public class TableEntityRegistries {
 
     public static void register(IEventBus eventBus) {
         TABLE_ENTITY_TYPES.register(eventBus);
+    }
+
+    private TableEntityRegistries() {
     }
 }

@@ -7,70 +7,68 @@ import com.gctn.tconstruct.library.stats.HandleMaterialStats;
 import com.gctn.tconstruct.library.stats.HeadMaterialStats;
 import com.gctn.tconstruct.library.utils.HarvestLevels;
 import com.gctn.tconstruct.tools.TinkerTools;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Tool;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.common.ItemAbilities;
+import net.neoforged.neoforge.common.ItemAbility;
 import net.neoforged.neoforge.registries.DeferredItem;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static com.gctn.tconstruct.tools.toolcolors.PickaxeColor.PICKAXE_COLOR;
 
 public class Pickaxe extends TinkerTools {
     public static final DeferredItem<Item> PICKAXE = ITEMS.register("pickaxe/pickaxe",
             Pickaxe::new);
 
+    public static void bootstrap() {
+    }
+
     public Pickaxe() {}
 
     // Material order: handle, head, binding.
     public static ItemStack initPickaxe(Material matHandle, Material matHead, Material matBinding) {
+        if (matHandle == null || matHead == null || matBinding == null) {
+            return ItemStack.EMPTY;
+        }
+        HandleMaterialStats handleStats = matHandle.getStats(Material.HANDLE, HandleMaterialStats.class);
+        HeadMaterialStats headStats = matHead.getStats(Material.HEAD, HeadMaterialStats.class);
+        ExtraMaterialStats bindingStats = matBinding.getStats(Material.EXTRA, ExtraMaterialStats.class);
+        if (handleStats == null || headStats == null || bindingStats == null) {
+            return ItemStack.EMPTY;
+        }
+
         ItemStack stack = new ItemStack(PICKAXE.get());
         CompoundTag tag = new CompoundTag();
         tag.putString("Handle", matHandle.identifier);
         tag.putString("Head", matHead.identifier);
         tag.putString("Binding", matBinding.identifier);
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
-
-        HeadMaterialStats headStats = (HeadMaterialStats) matHead.getStats().get("Head");
-        if (headStats != null) {
-            stack.set(DataComponents.TOOL, getPickaxeInfo(headStats));
-            stack.set(DataComponents.MAX_DAMAGE, getPickaxeDurability(matHandle, matHead, matBinding));
-            stack.set(DataComponents.DAMAGE, 0);
-        }
-
-        stack.set(DataComponents.ITEM_NAME, Component.literal(
-                        Component.translatable(
-                                "material." + matHead.identifier + ".name").getString()
-                                + " "
-                                + Component.translatable("item.tconstruct.pickaxe.name").getString()
-                )
-        );
+        stack.set(DataComponents.TOOL, getPickaxeInfo(headStats));
+        stack.set(DataComponents.ATTRIBUTE_MODIFIERS, getPickaxeAttributes(headStats));
+        stack.set(DataComponents.MAX_DAMAGE, getPickaxeDurability(handleStats, headStats, bindingStats));
+        stack.set(DataComponents.DAMAGE, 0);
+        stack.set(DataComponents.ITEM_NAME, Component.translatable(
+                "item.tconstruct.material_name",
+                Component.translatable("material." + matHead.identifier + ".name"),
+                Component.translatable("item.tconstruct.pickaxe.name")));
         return stack;
     }
 
-    private static int getPickaxeDurability(Material matHandle, Material matHead, Material matBinding) {
-        HandleMaterialStats handleStats = (HandleMaterialStats) matHandle.getStats().get("Handle");
-        ExtraMaterialStats bindingStats = (ExtraMaterialStats) matBinding.getStats().get("Extra");
-        HeadMaterialStats headStats = (HeadMaterialStats) matHead.getStats().get("Head");
-
-        float handleModifier = handleStats != null ? handleStats.modifer : 1.0F;
-        int handleDurability = handleStats != null ? handleStats.durability : 0;
-        int bindingDurability = bindingStats != null ? bindingStats.durability : 0;
-
-        return Math.max(1, Math.round((headStats.durability + bindingDurability) * handleModifier) + handleDurability);
+    private static int getPickaxeDurability(HandleMaterialStats handleStats, HeadMaterialStats headStats,
+                                            ExtraMaterialStats bindingStats) {
+        return Math.max(1, Math.round((headStats.durability + bindingStats.durability) * handleStats.modifier)
+                + handleStats.durability);
     }
 
     private static Tool getPickaxeInfo(HeadMaterialStats headStats) {
@@ -80,12 +78,27 @@ public class Pickaxe extends TinkerTools {
         ), 1.0F, 1);
     }
 
+    private static ItemAttributeModifiers getPickaxeAttributes(HeadMaterialStats headStats) {
+        return ItemAttributeModifiers.builder()
+                .add(Attributes.ATTACK_DAMAGE,
+                        new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, headStats.attack,
+                                AttributeModifier.Operation.ADD_VALUE),
+                        EquipmentSlotGroup.MAINHAND)
+                .add(Attributes.ATTACK_SPEED,
+                        new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -2.8,
+                                AttributeModifier.Operation.ADD_VALUE),
+                        EquipmentSlotGroup.MAINHAND)
+                .build();
+    }
+
     @Override
-    public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity miningEntity) {
-        if (!level.isClientSide && state.getDestroySpeed(level, pos) != 0.0F) {
-            stack.hurtAndBreak(1, miningEntity, EquipmentSlot.MAINHAND);
-        }
+    public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         return true;
+    }
+
+    @Override
+    public boolean canPerformAction(ItemStack stack, ItemAbility itemAbility) {
+        return ItemAbilities.DEFAULT_PICKAXE_ACTIONS.contains(itemAbility);
     }
 
     @Override
@@ -95,18 +108,12 @@ public class Pickaxe extends TinkerTools {
 
     @Override
     public List<RepairInfo> getRepairInfo(ItemStack stack) {
-        List<RepairInfo> repairInfos = new ArrayList<>();
-        Material head = getMaterial(stack, "Head", "Head");
-        Material handle = getMaterial(stack, "Handle", "Handle");
+        Material head = getMaterial(stack, "Head", Material.HEAD);
         if (head == null) {
             return List.of();
         }
-        int headDurability = ((HeadMaterialStats) head.getStats().get("Head")).durability;
-        int handleDurability = ((HandleMaterialStats) handle.getStats().get("Handle")).durability;
-        repairInfos.add(new RepairInfo(head, 1.0F, headDurability));
-        repairInfos.add(new RepairInfo(handle, 0.8F, handleDurability));
-
-        return repairInfos;
+        HeadMaterialStats headStats = head.getStats(Material.HEAD, HeadMaterialStats.class);
+        return headStats == null ? List.of() : List.of(new RepairInfo(head, 1.0F, headStats.durability));
     }
 
     private static Material getMaterial(ItemStack stack, String materialKey, String requiredStat) {
@@ -115,22 +122,7 @@ public class Pickaxe extends TinkerTools {
             return null;
         }
 
-        String materialId = customData.copyTag().getString(materialKey);
-        for (Material material : TinkerMaterials.materials) {
-            if (material.identifier.equals(materialId)
-                    && material.getStats() != null
-                    && material.getStats().containsKey(requiredStat)) {
-                return material;
-            }
-        }
-        return null;
-    }
-
-    private static void registerPickaxeColors(RegisterColorHandlersEvent.Item event) {
-        event.register(PICKAXE_COLOR, PICKAXE.get());
-    }
-
-    public static void register(IEventBus eventBus) {
-        eventBus.addListener(Pickaxe::registerPickaxeColors);
+        Material material = TinkerMaterials.getMaterial(customData.getUnsafe().getString(materialKey));
+        return material != null && material.hasStats(requiredStat) ? material : null;
     }
 }

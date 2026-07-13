@@ -8,6 +8,7 @@ import net.minecraft.world.item.ItemStack;
 
 public class ToolStationResultSlot extends Slot {
     private final ToolStationMenu menu;
+    private boolean settingFromMenu;
 
     // 绑定工具台菜单，让结果槽把放入、取出事件交回菜单处理。
     public ToolStationResultSlot(ToolStationMenu menu, Container container, int slot, int x, int y) {
@@ -37,7 +38,18 @@ public class ToolStationResultSlot extends Slot {
     @Override
     public void setByPlayer(ItemStack newStack, ItemStack oldStack) {
         super.setByPlayer(newStack, oldStack);
-        this.menu.resultSlotChanged(newStack);
+        if (!this.settingFromMenu) {
+            this.menu.resultSlotChanged(newStack);
+        }
+    }
+
+    public void setFromMenu(ItemStack stack) {
+        this.settingFromMenu = true;
+        try {
+            super.setByPlayer(stack);
+        } finally {
+            this.settingFromMenu = false;
+        }
     }
 
     // 玩家取走结果槽物品时，通知菜单消费材料或处理拆解状态。
