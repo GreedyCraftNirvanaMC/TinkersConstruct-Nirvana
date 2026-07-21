@@ -8,6 +8,7 @@ import net.minecraft.world.item.ItemStack;
 
 public class ToolStationResultSlot extends Slot {
     private final ToolStationMenu menu;
+    private Mode takenMode;
 
     // 绑定工具台菜单，让结果槽把放入、取出事件交回菜单处理。
     public ToolStationResultSlot(ToolStationMenu menu, Container container, int slot, int x, int y) {
@@ -24,7 +25,11 @@ public class ToolStationResultSlot extends Slot {
     // 按菜单当前状态判断结果槽是否能被取走。
     @Override
     public boolean mayPickup(Player player) {
-        return this.menu.canTakeResultSlot();
+        boolean mayPickup = this.menu.canTakeResultSlot();
+        if (mayPickup) {
+            this.takenMode = this.menu.getMode();
+        }
+        return mayPickup;
     }
 
     // 工具台结果槽只允许单个物品。
@@ -44,6 +49,9 @@ public class ToolStationResultSlot extends Slot {
     @Override
     public void onTake(Player player, ItemStack stack) {
         super.onTake(player, stack);
-        this.menu.resultSlotTaken(player, stack);
+        if (this.takenMode != null) {
+            this.menu.resultSlotTaken(this.takenMode);
+            this.takenMode = null;
+        }
     }
 }

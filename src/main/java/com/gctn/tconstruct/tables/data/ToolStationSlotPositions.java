@@ -50,6 +50,15 @@ public final class ToolStationSlotPositions {
             null
     };
 
+    private static final SlotPosition[] HIDDEN_INPUT_SLOTS = {
+            new SlotPosition(74, 61),
+            new SlotPosition(92, 61),
+            new SlotPosition(110, 61),
+            new SlotPosition(74, 61),
+            new SlotPosition(92, 61),
+            new SlotPosition(110, 61)
+    };
+
     private ToolStationSlotPositions() {
     }
 
@@ -72,6 +81,11 @@ public final class ToolStationSlotPositions {
             return null;
         }
         return getInputSlots(mode)[inputSlot];
+    }
+
+    public static SlotPosition getDisplayInputSlotPosition(Mode mode, int inputSlot) {
+        SlotPosition activePosition = getInputSlotPosition(mode, inputSlot);
+        return activePosition == null ? HIDDEN_INPUT_SLOTS[inputSlot] : activePosition;
     }
 
     private static SlotPosition[] getInputSlots(Mode mode) {

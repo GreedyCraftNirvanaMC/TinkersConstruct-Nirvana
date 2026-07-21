@@ -2,8 +2,8 @@ package com.gctn.tconstruct.tables.data;
 
 import com.gctn.tconstruct.tables.menu.ToolStationMenu;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 public class ModeAwareInputSlot extends Slot {
@@ -20,30 +20,25 @@ public class ModeAwareInputSlot extends Slot {
 
     @Override
     public boolean isActive() {
-        return this.menu.isMode(this.slotMode)
-                && this.menu.isInputSlotActive(this.slotIndex);
+        return this.menu.isInputSlotAvailable(this.slotMode, this.slotIndex);
     }
 
     @Override
     public boolean mayPlace(ItemStack stack) {
-        if (!this.isActive() || !super.mayPlace(stack)) {
-            return false;
-        }
-
-        if (this.slotMode == Mode.DISASSEMBLE) {
-            return false;
-        }
-
-        Item requiredItem = this.menu.getRequiredInputItem(this.slotMode, this.slotIndex);
-        return requiredItem == null || stack.is(requiredItem);
+        return this.isActive()
+                && super.mayPlace(stack)
+                && this.menu.canPlaceInput(this.slotMode, this.slotIndex, stack);
     }
 
     @Override
-    public void onTake(net.minecraft.world.entity.player.Player player, ItemStack stack) {
+    public boolean mayPickup(Player player) {
+        return this.isActive() && super.mayPickup(player);
+    }
+
+    @Override
+    public void onTake(Player player, ItemStack stack) {
         super.onTake(player, stack);
-        if (this.slotMode == Mode.DISASSEMBLE) {
-            this.menu.disassemblyPartTaken();
-        }
+        this.menu.disassemblyPartTaken();
     }
 
     @Override

@@ -28,6 +28,14 @@ public class ToolStationScreen extends AbstractContainerScreen<ToolStationMenu> 
     private static final int MODE_BUTTON_Y = 10;
     private static final int MODE_BUTTON_SPACING = 22;
     private static final float INPUT_SLOT_ICON_ALPHA = 0.35F;
+    private static final DefaultSlotIcon[] DEFAULT_SLOT_ICONS = {
+            new DefaultSlotIcon(32, 44, 0),
+            new DefaultSlotIcon(14, 64, 18),
+            new DefaultSlotIcon(10, 39, 36),
+            new DefaultSlotIcon(33, 21, 55),
+            new DefaultSlotIcon(54, 39, 72),
+            new DefaultSlotIcon(50, 64, 90)
+    };
 
     private final List<ModeButton> modeButtons = new ArrayList<>();
 
@@ -68,7 +76,7 @@ public class ToolStationScreen extends AbstractContainerScreen<ToolStationMenu> 
         guiGraphics.blit(BACKGROUND_TEXTURE, this.leftPos - 2, this.topPos, 131, 180, 2, 7);
         guiGraphics.blit(BACKGROUND_TEXTURE, this.leftPos + this.imageWidth, this.topPos, 0, 180, 133, 7);
         for (int inputSlot = 0; inputSlot < ToolStationMenu.INPUT_SLOT_COUNT; inputSlot++) {
-            if (this.menu.isInputSlotActive(inputSlot)) {
+            if (this.menu.isInputSlotVisible(inputSlot)) {
                 SlotPosition position = this.menu.getInputSlotPosition(inputSlot);
                 renderItemSlot(guiGraphics, position.x(), position.y());
                 renderInputSlotIcon(guiGraphics, inputSlot, position.x(), position.y());
@@ -87,6 +95,11 @@ public class ToolStationScreen extends AbstractContainerScreen<ToolStationMenu> 
     }
 
     private void renderInputSlotIcon(GuiGraphics guiGraphics, int inputSlot, int x, int y) {
+        if (this.menu.isMode(Mode.DEFAULT)) {
+            this.renderDefaultSlotIcon(guiGraphics, inputSlot);
+            return;
+        }
+
         ItemStack icon = this.menu.getInputSlotIcon(inputSlot);
         if (icon.isEmpty()) {
             return;
@@ -95,6 +108,15 @@ public class ToolStationScreen extends AbstractContainerScreen<ToolStationMenu> 
         guiGraphics.setColor(1.0F, 1.0F, 1.0F, INPUT_SLOT_ICON_ALPHA);
         guiGraphics.renderItem(icon, this.leftPos + x + 1, this.topPos + y + 1);
         guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+    }
+
+    private void renderDefaultSlotIcon(GuiGraphics guiGraphics, int inputSlot) {
+        if (!this.menu.areSlotsEmpty(inputSlot)) {
+            return;
+        }
+
+        DefaultSlotIcon icon = DEFAULT_SLOT_ICONS[inputSlot];
+        guiGraphics.blit(ICON_TEXTURE, this.leftPos + icon.x(), this.topPos + icon.y(), icon.u(), 237, 16, 13);
     }
 
     private void addModeButton(Mode mode, ItemStack icon, int index) {
@@ -128,5 +150,8 @@ public class ToolStationScreen extends AbstractContainerScreen<ToolStationMenu> 
             button.visible = this.menu.isModeButtonVisible(button.getMode());
             button.active = button.visible && !this.menu.isMode(button.getMode());
         }
+    }
+
+    private record DefaultSlotIcon(int x, int y, int u) {
     }
 }

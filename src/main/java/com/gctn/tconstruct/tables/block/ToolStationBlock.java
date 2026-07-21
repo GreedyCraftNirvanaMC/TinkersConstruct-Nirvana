@@ -58,6 +58,13 @@ public class ToolStationBlock extends BaseEntityBlock {
 
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (state.is(newState.getBlock())) {
+            super.onRemove(state, level, pos, newState, movedByPiston);
+            return;
+        }
+        if (level.getBlockEntity(pos) instanceof ToolStationBlockEntity blockEntity) {
+            blockEntity.prepareForRemoval();
+        }
         Containers.dropContentsOnDestroy(state, newState, level, pos);
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
