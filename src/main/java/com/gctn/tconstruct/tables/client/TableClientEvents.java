@@ -1,13 +1,13 @@
 package com.gctn.tconstruct.tables.client;
 
-import com.gctn.tconstruct.TinkersConstructNirvana;
+import com.gctn.tconstruct.TinkersNirvana;
 import com.gctn.tconstruct.tables.menu.TableMenuRegistries;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
-@EventBusSubscriber(modid = TinkersConstructNirvana.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = TinkersNirvana.MODID, value = Dist.CLIENT)
 public class TableClientEvents {
     @SubscribeEvent
     private static void registerTableScreens(RegisterMenuScreensEvent event) {

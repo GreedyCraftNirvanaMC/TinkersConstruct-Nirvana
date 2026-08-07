@@ -1,6 +1,6 @@
 package com.gctn.tconstruct.tables.block.entity;
 
-import com.gctn.tconstruct.TinkersConstructNirvana;
+import com.gctn.tconstruct.TinkersNirvana;
 import com.gctn.tconstruct.tables.block.TableBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 
 public class TableEntityRegistries {
     public static final DeferredRegister<BlockEntityType<?>> TABLE_ENTITY_TYPES =
-            DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, TinkersConstructNirvana.MODID);
+            DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, TinkersNirvana.MODID);
 
     public static final Supplier<BlockEntityType<?>> TOOL_STATION_BLOCK_ENTITY =
             TABLE_ENTITY_TYPES.register("toolstation_blockentity", () -> BlockEntityType.Builder

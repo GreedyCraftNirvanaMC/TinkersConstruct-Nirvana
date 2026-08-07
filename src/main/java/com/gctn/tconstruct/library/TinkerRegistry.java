@@ -1,13 +1,13 @@
 package com.gctn.tconstruct.library;
 
-import com.gctn.tconstruct.TinkersConstructNirvana;
+import com.gctn.tconstruct.TinkersNirvana;
 import com.gctn.tconstruct.library.toolparts.Binding;
 import com.gctn.tconstruct.library.toolparts.PickaxeHead;
 import com.gctn.tconstruct.library.toolparts.ToolPart;
 import com.gctn.tconstruct.library.toolparts.ToolRod;
+import com.gctn.tconstruct.library.utils.BlockRegister;
 import com.gctn.tconstruct.tools.TinkerTools;
 import com.gctn.tconstruct.tools.tools.Pickaxe;
-import com.gctn.tconstruct.library.utils.BlockRegister;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -25,7 +25,7 @@ import static com.gctn.tconstruct.library.TinkerMaterials.*;
 
 public class TinkerRegistry {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
-            DeferredRegister.create(Registries.CREATIVE_MODE_TAB, TinkersConstructNirvana.MODID);
+            DeferredRegister.create(Registries.CREATIVE_MODE_TAB, TinkersNirvana.MODID);
 
     // 部件
     public static final Supplier<CreativeModeTab> PARTS_TAB =

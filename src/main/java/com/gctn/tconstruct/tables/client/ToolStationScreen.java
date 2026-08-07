@@ -1,6 +1,6 @@
 package com.gctn.tconstruct.tables.client;
 
-import com.gctn.tconstruct.TinkersConstructNirvana;
+import com.gctn.tconstruct.TinkersNirvana;
 import com.gctn.tconstruct.tables.data.Mode;
 import com.gctn.tconstruct.tables.menu.ToolStationMenu;
 import com.gctn.tconstruct.tables.data.ToolStationSlotPositions.SlotPosition;
@@ -20,9 +20,9 @@ import java.util.List;
 @OnlyIn(Dist.CLIENT)
 public class ToolStationScreen extends AbstractContainerScreen<ToolStationMenu> {
     private static final ResourceLocation BACKGROUND_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(TinkersConstructNirvana.MODID, "textures/gui/toolstation.png");
+            ResourceLocation.fromNamespaceAndPath(TinkersNirvana.MODID, "textures/gui/toolstation.png");
     private static final ResourceLocation ICON_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(TinkersConstructNirvana.MODID, "textures/gui/icons.png");
+            ResourceLocation.fromNamespaceAndPath(TinkersNirvana.MODID, "textures/gui/icons.png");
 
     private static final int MODE_BUTTON_X = -108;
     private static final int MODE_BUTTON_Y = 10;

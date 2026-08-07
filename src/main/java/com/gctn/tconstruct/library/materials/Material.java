@@ -40,6 +40,18 @@ public class Material {
         return this;
     }
 
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    public boolean isCraftable() {
+        return craftable;
+    }
+
+    public boolean isCastable() {
+        return castable;
+    }
+
     // 添加材料属性
     public void addMaterialStats(AbstractMaterialStats... stats) {
         for (AbstractMaterialStats stat : stats) {
@@ -50,6 +62,15 @@ public class Material {
     // 获取材料属性
     public Map<String, AbstractMaterialStats> getStats() {
         return stats;
+    }
+
+    public boolean hasStats(String identifier) {
+        return stats.containsKey(identifier);
+    }
+
+    public <T extends AbstractMaterialStats> T getStats(String identifier, Class<T> statClass) {
+        AbstractMaterialStats stat = stats.get(identifier);
+        return statClass.isInstance(stat) ? statClass.cast(stat) : null;
     }
 
     public int getColor() { return color; }

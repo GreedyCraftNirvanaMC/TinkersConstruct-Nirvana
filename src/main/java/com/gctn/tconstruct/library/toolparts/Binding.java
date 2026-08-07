@@ -2,6 +2,7 @@ package com.gctn.tconstruct.library.toolparts;
 
 import com.gctn.tconstruct.library.TinkerMaterials;
 import com.gctn.tconstruct.library.materials.Material;
+import com.gctn.tconstruct.library.materials.MaterialValue;
 import com.gctn.tconstruct.library.utils.Tags;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -24,14 +25,14 @@ public class Binding extends ToolPart {
     }
 
     public static final DeferredItem<Item> BINDING = ITEMS.register("parts/binding",
-            () -> new Binding(144));
+            () -> new Binding(MaterialValue.VALUE_Ingot));
 
     public static void getAllColoredParts(Collection<ItemStack> coloredParts) {
         List<Material> materials = TinkerMaterials.materials;
         for (Material material : materials) {
-            if (material.getStats() == null || !material.getStats().containsKey("Extra")) { continue; }
-            ItemStack stack = getColoredPart(material);
-            coloredParts.add(stack);
+            if (material.hasStats("Extra") && !material.isHidden()) {
+                coloredParts.add(getColoredPart(material));
+            }
         }
     }
 
@@ -41,10 +42,9 @@ public class Binding extends ToolPart {
         tag.putString(Tags.PART_MATERIAL, material.identifier);
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
         stack.set(DataComponents.ITEM_NAME, Component.literal(
-                        Component.translatable(
-                                "material."+material.identifier+".name").getString()
-                                +" "
-                                +Component.translatable("item.tconstruct.binding.name").getString()
+                        Component.translatable("material."+material.identifier+".name").getString()
+                        +" "
+                        +Component.translatable("item.tconstruct.binding.name").getString()
                 )
         );
         return stack;

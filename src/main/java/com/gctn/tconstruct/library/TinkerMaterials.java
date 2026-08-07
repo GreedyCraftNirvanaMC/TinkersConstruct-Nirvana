@@ -125,4 +125,13 @@ public class TinkerMaterials {
         registerToolMaterialStats();
     }
 
+    public static Material getMaterial(String materialId) {
+        for (Material material : TinkerMaterials.materials) {
+            if (material.identifier.equals(materialId)) {
+                return material;
+            }
+        }
+        return null;
+    }
+
 }

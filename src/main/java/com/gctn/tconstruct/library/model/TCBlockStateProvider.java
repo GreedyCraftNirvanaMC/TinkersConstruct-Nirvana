@@ -1,6 +1,6 @@
 package com.gctn.tconstruct.library.model;
 
-import com.gctn.tconstruct.TinkersConstructNirvana;
+import com.gctn.tconstruct.TinkersNirvana;
 import com.gctn.tconstruct.library.utils.BlockRegister;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.DataGenerator;
@@ -39,7 +39,7 @@ public class TCBlockStateProvider extends BlockStateProvider {
 
             simpleBlockItem(block, TCModel);
 
-            TinkersConstructNirvana.LOGGER.info("test to: {}", block);
+            TinkersNirvana.LOGGER.info("test to: {}", block);
         }
     }
 

@@ -1,6 +1,6 @@
 package com.gctn.tconstruct.library.utils;
 
-import com.gctn.tconstruct.TinkersConstructNirvana;
+import com.gctn.tconstruct.TinkersNirvana;
 import com.gctn.tconstruct.common.block.OreBlocks;
 import com.gctn.tconstruct.tables.block.TableBlocks;
 import net.minecraft.world.item.BlockItem;
@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 
 public class BlockRegister {
     public static final DeferredRegister.Blocks BLOCKS =
-        DeferredRegister.createBlocks(TinkersConstructNirvana.MODID);
+        DeferredRegister.createBlocks(TinkersNirvana.MODID);
 
     public static <T extends Block> DeferredBlock<T> registerBlockWithItem(String name, Supplier<T> block) {
         return registerBlockWithItem(name, name, block);

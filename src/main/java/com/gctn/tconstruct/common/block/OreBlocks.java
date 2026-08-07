@@ -2,6 +2,7 @@ package com.gctn.tconstruct.common.block;
 
 import com.gctn.tconstruct.library.utils.BlockRegister;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
@@ -12,7 +13,8 @@ public class OreBlocks {
     public static final DeferredBlock<Block> COBALT_ORE =
             BlockRegister.registerBlockWithItem("cobalt_ore", () -> new Block(
                     BlockBehaviour.Properties.of()
-                            .destroyTime(25)
+                            .strength(25.0F, 15.0F)
+                            .sound(SoundType.STONE)
                             .requiresCorrectToolForDrops()
             ));
 

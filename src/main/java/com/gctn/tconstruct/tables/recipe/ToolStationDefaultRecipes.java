@@ -1,6 +1,6 @@
 package com.gctn.tconstruct.tables.recipe;
 
-import com.gctn.tconstruct.TinkersConstructNirvana;
+import com.gctn.tconstruct.TinkersNirvana;
 import com.gctn.tconstruct.library.MaterialList;
 import com.gctn.tconstruct.library.materials.Material;
 import com.gctn.tconstruct.tools.TinkerTools;
@@ -85,7 +85,6 @@ public final class ToolStationDefaultRecipes {
 
     // 获取修复方案(包括修复量和材料消耗情况)
     private static RepairPlan createRepairPlan(Container container) {
-        ensureMaterialListInitialized();
 
         ItemStack tool = container.getItem(TOOL_SLOT);
         if (!isRepairableTool(tool)) {
@@ -107,7 +106,7 @@ public final class ToolStationDefaultRecipes {
                 }
                 int repairAmount = getRepairAmount(tool, repairMatch.partEfficient, repairMatch.matEfficient, matchEfficiency);
                 // 测试日志，后续删除
-                TinkersConstructNirvana.LOGGER.debug(
+                TinkersNirvana.LOGGER.debug(
                         "Repair match: part={}, material={}, match={}",
                         repairMatch.partEfficient(),
                         repairMatch.matEfficient(),
@@ -182,12 +181,6 @@ public final class ToolStationDefaultRecipes {
                 && stack.isDamageableItem()
                 && stack.getMaxDamage() > 0
                 && stack.getDamageValue() > 0;
-    }
-
-    private static void ensureMaterialListInitialized() {
-        if (MaterialList.MATERIAL_MAP.isEmpty()) {
-            MaterialList.init();
-        }
     }
 
     private static double materialMatchesInput(Material material, String inputItemId) {

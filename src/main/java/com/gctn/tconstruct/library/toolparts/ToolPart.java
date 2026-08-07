@@ -1,13 +1,13 @@
 package com.gctn.tconstruct.library.toolparts;
 
-import com.gctn.tconstruct.TinkersConstructNirvana;
+import com.gctn.tconstruct.TinkersNirvana;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public abstract class ToolPart extends Item {
     public static final DeferredRegister.Items ITEMS =
-            DeferredRegister.createItems(TinkersConstructNirvana.MODID);
+            DeferredRegister.createItems(TinkersNirvana.MODID);
 
     private final int cost;
 

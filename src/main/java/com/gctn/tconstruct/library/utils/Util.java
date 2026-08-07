@@ -9,7 +9,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
-import static com.gctn.tconstruct.TinkersConstructNirvana.MODID;
+import static com.gctn.tconstruct.TinkersNirvana.MODID;
 
 public class Util {
     public static final DecimalFormat df = new DecimalFormat("#,###,###.##", DecimalFormatSymbols.getInstance(Locale.US));

@@ -1,6 +1,6 @@
 package com.gctn.tconstruct.tools;
 
-import com.gctn.tconstruct.TinkersConstructNirvana;
+import com.gctn.tconstruct.TinkersNirvana;
 import com.gctn.tconstruct.library.materials.Material;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -11,7 +11,7 @@ import java.util.List;
 
 public abstract class TinkerTools extends Item {
     public static final DeferredRegister.Items ITEMS =
-            DeferredRegister.createItems(TinkersConstructNirvana.MODID);
+            DeferredRegister.createItems(TinkersNirvana.MODID);
 
     public TinkerTools() {
         super(new Item.Properties().stacksTo(1));

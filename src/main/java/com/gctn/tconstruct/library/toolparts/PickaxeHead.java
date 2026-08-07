@@ -2,6 +2,7 @@ package com.gctn.tconstruct.library.toolparts;
 
 import com.gctn.tconstruct.library.TinkerMaterials;
 import com.gctn.tconstruct.library.materials.Material;
+import com.gctn.tconstruct.library.materials.MaterialValue;
 import com.gctn.tconstruct.library.utils.Tags;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -24,7 +25,7 @@ public class PickaxeHead extends ToolPart {
     }
 
     public static final DeferredItem<Item> PICKAXEHEAD = ITEMS.register("parts/pickaxe_head",
-            () -> new PickaxeHead(144));
+            () -> new PickaxeHead(MaterialValue.VALUE_Ingot * 2));
 
     public static void getAllColoredParts(Collection<ItemStack> coloredParts) {
         List<Material> materials = TinkerMaterials.materials;
@@ -41,10 +42,9 @@ public class PickaxeHead extends ToolPart {
         tag.putString(Tags.PART_MATERIAL, material.identifier);
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
         stack.set(DataComponents.ITEM_NAME, Component.literal(
-                        Component.translatable(
-                                "material."+material.identifier+".name").getString()
-                                +" "
-                                +Component.translatable("item.tconstruct.pickaxe_head.name").getString()
+                        Component.translatable("material."+material.identifier+".name").getString()
+                        +" "
+                        +Component.translatable("item.tconstruct.pickaxe_head.name").getString()
                 )
         );
         return stack;
