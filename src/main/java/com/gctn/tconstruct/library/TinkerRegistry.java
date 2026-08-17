@@ -50,7 +50,7 @@ public class TinkerRegistry {
                     .icon(() -> new ItemStack(Items.WOODEN_PICKAXE))
                     .title(Component.translatable("tinker_tools_tab"))
                     .displayItems(((itemDisplayParameters, output) -> {
-                        output.accept(Pickaxe.initPickaxe(wood, stone, unknown));
+                        output.accept(Pickaxe.initPickaxe(wood, stone, wood));
                     }))
                     .build());
 

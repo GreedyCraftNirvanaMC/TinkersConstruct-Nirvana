@@ -1,5 +1,7 @@
 package com.gctn.tconstruct.library.toolparts;
 
+import com.gctn.tconstruct.library.utils.ToolHelper;
+import com.gctn.tconstruct.library.utils.Util;
 import com.mojang.datafixers.util.Either;
 import com.gctn.tconstruct.TinkersNirvana;
 import com.gctn.tconstruct.library.TinkerMaterials;
@@ -96,7 +98,7 @@ public class ToolRod extends ToolPart {
                 Component.literal(String.valueOf(handleStats.modifer)).withColor(0xFFB9B95A)
         ).withColor(0xFFAAAAAA);
         Component durabilityTip = Component.translatable(
-                "tooltip.tconstruct.uni.durability",
+                "tooltip.tconstruct.part.durability",
                 Component.literal(String.valueOf(handleStats.durability)).withColor(0xFF47CC47)
         ).withColor(0xFFAAAAAA);
 
@@ -108,26 +110,15 @@ public class ToolRod extends ToolPart {
             addedTips.add(Either.left(handleTip));
             addedTips.add(Either.left(modifierTip));
             addedTips.add(Either.left(durabilityTip));
-        } else if (Screen.hasControlDown()) {
-            // TODO 按下Ctrl时显示词条简介
+        } else if (Screen.hasAltDown()) {
+            // TODO 按下Alt时显示词条简介
         } else {
             addedTips.add(Either.left(shiftTip));
         }
-        if (hasCreativeTabTip(tooltip, stack)) {
+        if (ToolHelper.hasCreativeTabTip(tooltip, stack)) {
             addedTips.add(Either.left(Component.empty()));
         }
         tooltip.addAll(1, addedTips);
-    }
-
-    private static boolean hasCreativeTabTip(
-            List<Either<FormattedText, TooltipComponent>> tooltip, ItemStack stack
-    ) {
-        return CreativeModeTabs.tabs().stream()
-                .filter(tab -> !tab.hasSearchBar() && tab.contains(stack))
-                .map(tab -> tab.getDisplayName().getString())
-                .anyMatch(tabName -> tooltip.stream().anyMatch(element -> element.left()
-                        .map(text -> text.getString().equals(tabName))
-                        .orElse(false)));
     }
 
     private static void registerItemColors(RegisterColorHandlersEvent.Item event) {

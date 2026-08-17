@@ -106,7 +106,7 @@ public class TinkerMaterials {
         wood.addMaterialStats(new HeadMaterialStats(35, HarvestLevels.STONE, 1, 2),
                 new HandleMaterialStats(1, 25),
                 new ExtraMaterialStats(15));
-        stone.addMaterialStats(new HeadMaterialStats(100, HarvestLevels.IRON, 1, 4),
+        stone.addMaterialStats(new HeadMaterialStats(100, HarvestLevels.IRON, 20, 4),
                 new HandleMaterialStats(1, 100),
                 new ExtraMaterialStats(150));
     }

@@ -73,7 +73,10 @@
   "container.tconstruct.toolstation.mode.debug": "Debug",
 
   "tooltip.tconstruct.hold_for_stats": "Hold %s for Stats",
-  "tooltip.tconstruct.uni.durability": "Durability: %s",
+  "tooltip.tconstruct.hold_for_more": "Hold %s for more",
+  "tooltip.tconstruct.part.durability": "Durability: %s",
   "tooltip.tconstruct.handle.modifier": "Modifier: %s",
-  "tooltip.tconstruct.handle": "Handle"
+  "tooltip.tconstruct.handle": "Handle",
+
+  "tooltip.tconstruct.tool.durability": "Durability: %s/%s"
 }
