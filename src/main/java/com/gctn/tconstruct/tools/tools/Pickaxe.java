@@ -37,6 +37,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
 import net.neoforged.neoforge.registries.DeferredItem;
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,7 +124,7 @@ public class Pickaxe extends TinkerTools {
     @Override
     public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity miningEntity) {
         if (!level.isClientSide && state.getDestroySpeed(level, pos) != 0.0F) {
-            stack.hurtAndBreak(1, miningEntity, EquipmentSlot.MAINHAND);
+            damageTool(stack, 1, miningEntity, EquipmentSlot.MAINHAND);
         }
         return true;
     }
@@ -135,7 +136,7 @@ public class Pickaxe extends TinkerTools {
 
     @Override
     public void postHurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        stack.hurtAndBreak(2, attacker, EquipmentSlot.MAINHAND);
+        damageTool(stack, 2, attacker, EquipmentSlot.MAINHAND);
     }
 
     @Override
@@ -152,23 +153,6 @@ public class Pickaxe extends TinkerTools {
         repairInfos.add(new RepairInfo(handle, 0.8F, handleDurability));
 
         return repairInfos;
-    }
-
-    private static Material getMaterial(ItemStack stack, String materialKey, String requiredStat) {
-        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
-        if (customData == null) {
-            return null;
-        }
-
-        String materialId = customData.copyTag().getString(materialKey);
-        for (Material material : TinkerMaterials.materials) {
-            if (material.identifier.equals(materialId)
-                    && material.getStats() != null
-                    && material.getStats().containsKey(requiredStat)) {
-                return material;
-            }
-        }
-        return null;
     }
 
     @SubscribeEvent
@@ -188,18 +172,12 @@ public class Pickaxe extends TinkerTools {
         Material handleMaterial = TinkerMaterials.getMaterial(handleMaterialId);
         String bindingMaterialId = nbtTag.getString("Binding");
         Material bindingMaterial = TinkerMaterials.getMaterial(bindingMaterialId);
+
+        HeadMaterialStats headStats = headMaterial.getStats("Head", HeadMaterialStats.class);
+
         Component headTraitsTip = Component.literal("词条").withColor(headMaterial.color);
         Component handleTraitsTip = Component.literal("词条").withColor(handleMaterial.color);
         Component bindingTraitsTip = Component.literal("词条").withColor(bindingMaterial.color);
-
-        Component shiftTip = Component.translatable(
-                "tooltip.tconstruct.hold_for_stats",
-                Component.literal("Shift").withColor(0xFFFFFF55)
-        ).withColor(0xFFAAAAAA);
-        Component controlTip = Component.translatable(
-                "tooltip.tconstruct.hold_for_more",
-                Component.literal("Ctrl").withColor(0xFF55FFFF)
-        ).withColor(0xFFAAAAAA);
 
         List<Either<FormattedText, TooltipComponent>> upperTips = new ArrayList<>();
         upperTips.add(Either.left(headTraitsTip));
@@ -207,17 +185,27 @@ public class Pickaxe extends TinkerTools {
         upperTips.add(Either.left(bindingTraitsTip));
         upperTips.add(Either.left(Component.empty()));
 
-        int maxDurability = stack.getMaxDamage();
-        int remainingDurability = Math.max(0, maxDurability - stack.getDamageValue());
-        Component durabilityTip = Component.translatable(
-                "tooltip.tconstruct.tool.durability",
-                Component.literal(String.valueOf(remainingDurability)).withColor(ToolHelper.getDurabilityColor(stack)),
-                Component.literal(String.valueOf(maxDurability)).withColor(0xFF47CC47)
+        Component durabilityTip = getDurabilityTip(stack);
+        Component miningLevelTip = Component.translatable("tooltip.tconstruct.tool.mininglevel",
+                HarvestLevels.getHarvestLevelName(headStats.harvestLevel)
+        ).withColor(0xFFAAAAAA);
+        Component miningSpeedTip = Component.translatable("tooltip.tconstruct.tool.miningspeed",
+                Component.literal(String.valueOf(headStats.miningspeed)).withColor(0xFF78A0CD)
+        ).withColor(0xFFAAAAAA);
+        Component attackTip = Component.translatable("tooltip.tconstruct.tool.attack",
+                Component.literal(String.valueOf(headStats.attack)).withColor(0xFFD76464)
+        ).withColor(0xFFAAAAAA);
+        Component modifiersTip = Component.translatable("tooltip.tconstruct.tool.modifiers",
+                ((TinkerTools) stack.getItem()).getAvailableModifierSlots(stack)
         ).withColor(0xFFAAAAAA);
 
         if (Screen.hasShiftDown()) {
             // TODO 按下Shift时显示数据
             upperTips.add(Either.left(durabilityTip));
+            upperTips.add(Either.left(miningLevelTip));
+            upperTips.add(Either.left(miningSpeedTip));
+            upperTips.add(Either.left(attackTip));
+            upperTips.add(Either.left(modifiersTip));
         } else if (Screen.hasControlDown()) {
             // TODO 按下Ctrl时显示详细信息
         } else if (Screen.hasAltDown()) {

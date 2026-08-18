@@ -1,15 +1,11 @@
 package com.gctn.tconstruct.library.utils;
 
 import com.gctn.tconstruct.library.TinkerMaterials;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.tags.TagKey;
-
-import com.google.common.collect.Maps;
-
-import java.util.Map;
 
 public class HarvestLevels {
 
@@ -22,34 +18,21 @@ public class HarvestLevels {
     private HarvestLevels() {
     } // non-instantiable
 
-    public static final Map<Integer, String> harvestLevelNames = Maps.newHashMap();
-
-    public static String getHarvestLevelName(int num) {
-        return harvestLevelNames.containsKey(num) ? harvestLevelNames.get(num) : String.valueOf(num);
-    }
-
-    public static void init() {
-        harvestLevelNames.put(STONE, TinkerMaterials.stone.getColor() + Util.translate("ui.mininglevel.stone"));
-        harvestLevelNames.put(IRON, TinkerMaterials.iron.getColor() + Util.translate("ui.mininglevel.iron"));
-        harvestLevelNames.put(DIAMOND, ChatFormatting.AQUA + Util.translate("ui.mininglevel.diamond"));
-        harvestLevelNames.put(OBSIDIAN, TinkerMaterials.obsidian.getColor() + Util.translate("ui.mininglevel.obsidian"));
-        harvestLevelNames.put(COBALT, TinkerMaterials.cobalt.getColor() + Util.translate("ui.mininglevel.cobalt"));
-
-        // custom names via resource pack.. deprecated
-        String base = "gui.mining";
-        int i = 0;
-        while(!Component.translatable(String.format("%s%d", base, i)).toString().equals(String.format("%s%d", base, i))) {
-            harvestLevelNames.put(i, Component.translatable(String.format("%s%d", base, i)).toString());
-            i++;
-        }
-
-        // and new
-        base = "ui.mininglevel.";
-        i = 0;
-        while(!Component.translatable(String.format("%s%d", base, i)).toString().equals(String.format("%s%d", base, i))) {
-            harvestLevelNames.put(i, Component.translatable(String.format("%s%d", base, i)).toString());
-            i++;
-        }
+    public static Component getHarvestLevelName(int harvestLevel) {
+        MutableComponent name = switch (harvestLevel) {
+            case STONE -> Component.translatable("ui.mininglevel.stone")
+                    .withColor(TinkerMaterials.stone.getColor());
+            case IRON -> Component.translatable("ui.mininglevel.iron")
+                    .withColor(TinkerMaterials.iron.getColor());
+            case DIAMOND -> Component.translatable("ui.mininglevel.diamond")
+                    .withColor(0x55FFFF);
+            case OBSIDIAN -> Component.translatable("ui.mininglevel.obsidian")
+                    .withColor(TinkerMaterials.obsidian.getColor());
+            case COBALT -> Component.translatable("ui.mininglevel.cobalt")
+                    .withColor(TinkerMaterials.cobalt.getColor());
+            default -> Component.literal(String.valueOf(harvestLevel));
+        };
+        return name;
     }
 
     public static TagKey<Block> getIncorrectBlocksForDrops(int harvestLevel) {

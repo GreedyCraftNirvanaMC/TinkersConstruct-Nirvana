@@ -72,11 +72,24 @@
   "container.tconstruct.toolstation.mode.axe": "Axe",
   "container.tconstruct.toolstation.mode.debug": "Debug",
 
+  "ui.mininglevel.stone": "Stone",
+  "ui.mininglevel.iron": "Iron",
+  "ui.mininglevel.diamond": "Diamond",
+  "ui.mininglevel.obsidian": "Obsidian",
+  "ui.mininglevel.cobalt": "Cobalt",
+
   "tooltip.tconstruct.hold_for_stats": "Hold %s for Stats",
   "tooltip.tconstruct.hold_for_more": "Hold %s for more",
   "tooltip.tconstruct.part.durability": "Durability: %s",
   "tooltip.tconstruct.handle.modifier": "Modifier: %s",
   "tooltip.tconstruct.handle": "Handle",
 
-  "tooltip.tconstruct.tool.durability": "Durability: %s/%s"
+  "tooltip.tconstruct.tool.durability": "Durability: %s/%s",
+  "tooltip.tconstruct.tool.durability.broken": "Durability: %s",
+  "tooltip.tconstruct.tool.broken": "Broken",
+
+  "tooltip.tconstruct.tool.mininglevel": "Mining Level: %s",
+  "tooltip.tconstruct.tool.miningspeed": "Mining Speed: %s",
+  "tooltip.tconstruct.tool.attack": "Attack: %s",
+  "tooltip.tconstruct.tool.modifiers": "Modifiers: %s"
 }

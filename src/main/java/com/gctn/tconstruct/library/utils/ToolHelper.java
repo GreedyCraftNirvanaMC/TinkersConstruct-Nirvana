@@ -40,7 +40,7 @@ public class ToolHelper {
     }
 
     private static int interpolateArgb(int startColor, int endColor, float percentage) {
-        percentage = Math.max(0.0F, Math.min(1.0F, percentage));
+        percentage = Math.clamp(percentage, 0.0F, 1.0F);
 
         int startA = (startColor >>> 24) & 0xFF;
         int startR = (startColor >>> 16) & 0xFF;
