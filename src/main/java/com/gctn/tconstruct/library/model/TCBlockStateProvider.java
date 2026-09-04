@@ -1,7 +1,7 @@
 package com.gctn.tconstruct.library.model;
 
 import com.gctn.tconstruct.TinkersNirvana;
-import com.gctn.tconstruct.library.utils.BlockRegister;
+import com.gctn.tconstruct.init.BlockRegister;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;

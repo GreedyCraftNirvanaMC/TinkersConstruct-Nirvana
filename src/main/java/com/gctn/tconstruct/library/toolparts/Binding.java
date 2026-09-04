@@ -10,14 +10,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.Collection;
 import java.util.List;
-
-import static com.gctn.tconstruct.library.toolparts.PartColor.PART_COLOR;
 
 public class Binding extends ToolPart {
     public Binding(int cost) {
@@ -26,6 +22,10 @@ public class Binding extends ToolPart {
 
     public static final DeferredItem<Item> BINDING = ITEMS.register("parts/binding",
             () -> new Binding(MaterialValue.VALUE_Ingot));
+
+    /** Forces this class's static registration entry to be initialized. */
+    public static void init() {
+    }
 
     public static void getAllColoredParts(Collection<ItemStack> coloredParts) {
         List<Material> materials = TinkerMaterials.materials;
@@ -50,11 +50,4 @@ public class Binding extends ToolPart {
         return stack;
     }
 
-    private static void registerItemColors(RegisterColorHandlersEvent.Item event) {
-        event.register(PART_COLOR, BINDING.get());
-    }
-
-    public static void register(IEventBus eventBus) {
-        eventBus.addListener(Binding::registerItemColors);
-    }
 }

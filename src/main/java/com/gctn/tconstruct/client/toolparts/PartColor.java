@@ -1,5 +1,6 @@
-package com.gctn.tconstruct.library.toolparts;
+package com.gctn.tconstruct.client.toolparts;
 
+import com.gctn.tconstruct.TinkersNirvana;
 import com.gctn.tconstruct.library.TinkerMaterials;
 import com.gctn.tconstruct.library.materials.Material;
 import com.gctn.tconstruct.library.utils.Tags;
@@ -7,7 +8,16 @@ import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.component.CustomData;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 
+import static com.gctn.tconstruct.library.toolparts.Binding.BINDING;
+import static com.gctn.tconstruct.library.toolparts.PickaxeHead.PICKAXEHEAD;
+import static com.gctn.tconstruct.library.toolparts.ToolRod.TOOL_ROD;
+
+@EventBusSubscriber(modid = TinkersNirvana.MODID, value = Dist.CLIENT)
 public class PartColor {
     public static final ItemColor PART_COLOR = (stack, tintIndex) -> {
         CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
@@ -25,4 +35,12 @@ public class PartColor {
 
         return 0xFFFFFFFF;
     };
+
+    @SubscribeEvent
+    private static void registerItemColors(RegisterColorHandlersEvent.Item event) {
+        event.register(PART_COLOR, BINDING.get());
+        event.register(PART_COLOR, PICKAXEHEAD.get());
+        event.register(PART_COLOR, TOOL_ROD.get());
+    }
+
 }

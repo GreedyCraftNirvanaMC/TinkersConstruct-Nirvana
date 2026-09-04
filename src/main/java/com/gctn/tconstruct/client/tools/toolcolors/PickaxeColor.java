@@ -1,12 +1,20 @@
-package com.gctn.tconstruct.tools.toolcolors;
+package com.gctn.tconstruct.client.tools.toolcolors;
 
+import com.gctn.tconstruct.TinkersNirvana;
 import com.gctn.tconstruct.library.TinkerMaterials;
 import com.gctn.tconstruct.library.materials.Material;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.component.CustomData;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 
+import static com.gctn.tconstruct.tools.tools.Pickaxe.PICKAXE;
+
+@EventBusSubscriber(modid = TinkersNirvana.MODID, value = Dist.CLIENT)
 public class PickaxeColor {
     public static final ItemColor PICKAXE_COLOR = (stack, tintIndex) -> {
         CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
@@ -40,5 +48,10 @@ public class PickaxeColor {
         }
         // 材质ID匹配不到时返回默认色
         return 0xFFFFFFFF;
+    }
+
+    @SubscribeEvent
+    public static void registerPickaxeColors(RegisterColorHandlersEvent.Item event) {
+        event.register(PICKAXE_COLOR, PICKAXE.get());
     }
 }

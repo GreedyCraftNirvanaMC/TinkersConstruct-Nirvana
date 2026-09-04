@@ -1,4 +1,4 @@
-package com.gctn.tconstruct.tables;
+package com.gctn.tconstruct.init;
 
 import com.gctn.tconstruct.tables.block.entity.TableEntityRegistries;
 import com.gctn.tconstruct.tables.menu.TableMenuRegistries;

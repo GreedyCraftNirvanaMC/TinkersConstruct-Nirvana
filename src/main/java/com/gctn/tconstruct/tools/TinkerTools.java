@@ -125,7 +125,7 @@ public abstract class TinkerTools extends Item {
         return null;
     }
 
-    protected static Component getDurabilityTip(ItemStack stack) {
+    public static Component getDurabilityTip(ItemStack stack) {
         int maxDurability = stack.getMaxDamage();
         int remainingDurability = Math.max(0, maxDurability - stack.getDamageValue());
         Component durabilityTip = Component.translatable(

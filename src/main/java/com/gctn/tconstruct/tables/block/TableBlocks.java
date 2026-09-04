@@ -1,6 +1,6 @@
 package com.gctn.tconstruct.tables.block;
 
-import com.gctn.tconstruct.library.utils.BlockRegister;
+import com.gctn.tconstruct.init.BlockRegister;
 
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;

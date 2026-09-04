@@ -1,11 +1,13 @@
 package com.gctn.tconstruct;
 
+import com.gctn.tconstruct.init.ToolPartsRegistryBus;
+import com.gctn.tconstruct.init.ToolsRegistryBus;
 import com.gctn.tconstruct.library.MaterialList;
-import com.gctn.tconstruct.tables.TableRegistryBus;
+import com.gctn.tconstruct.init.TableRegistryBus;
 import com.gctn.tconstruct.library.TinkerMaterials;
-import com.gctn.tconstruct.library.TinkerRegistry;
-import com.gctn.tconstruct.library.utils.BlockRegister;
-import com.gctn.tconstruct.library.utils.ItemRegister;
+import com.gctn.tconstruct.init.TinkerRegistry;
+import com.gctn.tconstruct.init.BlockRegister;
+import com.gctn.tconstruct.init.ItemRegister;
 import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -22,9 +24,11 @@ public class TinkersNirvana {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public TinkersNirvana(IEventBus modEventBus, ModContainer modContainer) {
+        TableRegistryBus.register(modEventBus);
+        ToolPartsRegistryBus.register(modEventBus);
+        ToolsRegistryBus.register(modEventBus);
         TinkerRegistry.register(modEventBus);
         BlockRegister.register(modEventBus);
-        TableRegistryBus.register(modEventBus);
         ItemRegister.register(modEventBus);
         MaterialList.init();
         new TinkerMaterials();
